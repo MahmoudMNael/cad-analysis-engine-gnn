@@ -1,0 +1,1893 @@
+{
+  "components": {
+    "schemas": {
+      "BBoxDto": {
+        "additionalProperties": false,
+        "properties": {
+          "max_x": {
+            "title": "Max X",
+            "type": "number"
+          },
+          "max_y": {
+            "title": "Max Y",
+            "type": "number"
+          },
+          "min_x": {
+            "title": "Min X",
+            "type": "number"
+          },
+          "min_y": {
+            "title": "Min Y",
+            "type": "number"
+          }
+        },
+        "required": [
+          "min_x",
+          "min_y",
+          "max_x",
+          "max_y"
+        ],
+        "title": "BBoxDto",
+        "type": "object"
+      },
+      "Body_create_job_api_v1_jobs_post": {
+        "properties": {
+          "consent_training": {
+            "default": false,
+            "title": "Consent Training",
+            "type": "boolean"
+          },
+          "file": {
+            "contentMediaType": "application/octet-stream",
+            "title": "File",
+            "type": "string"
+          },
+          "unit": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Unit"
+          }
+        },
+        "required": [
+          "file"
+        ],
+        "title": "Body_create_job_api_v1_jobs_post",
+        "type": "object"
+      },
+      "ComponentHealthDto": {
+        "additionalProperties": false,
+        "properties": {
+          "detail": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Detail"
+          },
+          "status": {
+            "enum": [
+              "ok",
+              "error"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status"
+        ],
+        "title": "ComponentHealthDto",
+        "type": "object"
+      },
+      "CreateJobFromUrlRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "consent_training": {
+            "default": false,
+            "title": "Consent Training",
+            "type": "boolean"
+          },
+          "unit": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Unit"
+          },
+          "url": {
+            "format": "uri",
+            "maxLength": 2083,
+            "minLength": 1,
+            "title": "Url",
+            "type": "string"
+          }
+        },
+        "required": [
+          "url"
+        ],
+        "title": "CreateJobFromUrlRequest",
+        "type": "object"
+      },
+      "DimensionsDto": {
+        "additionalProperties": false,
+        "properties": {
+          "length_m": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Length M"
+          },
+          "width_m": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Width M"
+          }
+        },
+        "title": "DimensionsDto",
+        "type": "object"
+      },
+      "DividerRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "end_x": {
+            "title": "End X",
+            "type": "number"
+          },
+          "end_y": {
+            "title": "End Y",
+            "type": "number"
+          },
+          "expected_layout_rev": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expected Layout Rev"
+          },
+          "start_x": {
+            "title": "Start X",
+            "type": "number"
+          },
+          "start_y": {
+            "title": "Start Y",
+            "type": "number"
+          }
+        },
+        "required": [
+          "start_x",
+          "start_y",
+          "end_x",
+          "end_y"
+        ],
+        "title": "DividerRequest",
+        "type": "object"
+      },
+      "FeedbackAction": {
+        "enum": [
+          "accept",
+          "delete_room",
+          "restore_face",
+          "merge_rooms",
+          "split",
+          "draw_wall",
+          "connect_nodes",
+          "mark_entity",
+          "rename_room",
+          "undo"
+        ],
+        "title": "FeedbackAction",
+        "type": "string"
+      },
+      "FeedbackEventRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "action": {
+            "$ref": "#/components/schemas/FeedbackAction"
+          },
+          "actor": {
+            "default": "user",
+            "title": "Actor",
+            "type": "string"
+          },
+          "expected_layout_rev": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expected Layout Rev"
+          },
+          "payload": {
+            "additionalProperties": true,
+            "title": "Payload",
+            "type": "object"
+          },
+          "target_ids": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Target Ids",
+            "type": "array"
+          }
+        },
+        "required": [
+          "action"
+        ],
+        "title": "FeedbackEventRequest",
+        "type": "object"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "title": "Detail",
+            "type": "array"
+          }
+        },
+        "title": "HTTPValidationError",
+        "type": "object"
+      },
+      "HealthDataDto": {
+        "additionalProperties": false,
+        "properties": {
+          "object_store": {
+            "$ref": "#/components/schemas/ComponentHealthDto"
+          },
+          "postgres": {
+            "$ref": "#/components/schemas/ComponentHealthDto"
+          },
+          "redis": {
+            "$ref": "#/components/schemas/ComponentHealthDto"
+          },
+          "status": {
+            "enum": [
+              "ok",
+              "degraded",
+              "error"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status",
+          "postgres",
+          "redis",
+          "object_store"
+        ],
+        "title": "HealthDataDto",
+        "type": "object"
+      },
+      "HealthResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/HealthDataDto"
+          },
+          "message": {
+            "default": "",
+            "title": "Message",
+            "type": "string"
+          },
+          "success": {
+            "default": true,
+            "title": "Success",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "data"
+        ],
+        "title": "HealthResponse",
+        "type": "object"
+      },
+      "JobCreatedDto": {
+        "additionalProperties": false,
+        "properties": {
+          "job_id": {
+            "title": "Job Id",
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/JobStatus",
+            "default": "queued"
+          }
+        },
+        "required": [
+          "job_id"
+        ],
+        "title": "JobCreatedDto",
+        "type": "object"
+      },
+      "JobCreatedResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/JobCreatedDto"
+          },
+          "message": {
+            "default": "Job queued",
+            "title": "Message",
+            "type": "string"
+          },
+          "success": {
+            "default": true,
+            "title": "Success",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "data"
+        ],
+        "title": "JobCreatedResponse",
+        "type": "object"
+      },
+      "JobDto": {
+        "additionalProperties": false,
+        "properties": {
+          "attempt": {
+            "default": 0,
+            "title": "Attempt",
+            "type": "integer"
+          },
+          "completed_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Completed At"
+          },
+          "configuration_hash": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Configuration Hash"
+          },
+          "consent_training": {
+            "default": false,
+            "title": "Consent Training",
+            "type": "boolean"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "engine_sha": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Engine Sha"
+          },
+          "error_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Code"
+          },
+          "error_detail": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Detail"
+          },
+          "job_id": {
+            "title": "Job Id",
+            "type": "string"
+          },
+          "layout_rev": {
+            "default": 0,
+            "title": "Layout Rev",
+            "type": "integer"
+          },
+          "model_versions": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "title": "Model Versions",
+            "type": "object"
+          },
+          "pipeline_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pipeline Version"
+          },
+          "source_hash": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Hash"
+          },
+          "source_uri": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Uri"
+          },
+          "started_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Started At"
+          },
+          "status": {
+            "$ref": "#/components/schemas/JobStatus"
+          },
+          "unit": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Unit"
+          },
+          "unit_source": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/UnitSource"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "job_id",
+          "status",
+          "created_at"
+        ],
+        "title": "JobDto",
+        "type": "object"
+      },
+      "JobResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/JobDto"
+          },
+          "message": {
+            "default": "",
+            "title": "Message",
+            "type": "string"
+          },
+          "success": {
+            "default": true,
+            "title": "Success",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "data"
+        ],
+        "title": "JobResponse",
+        "type": "object"
+      },
+      "JobStatus": {
+        "enum": [
+          "queued",
+          "running",
+          "succeeded",
+          "failed"
+        ],
+        "title": "JobStatus",
+        "type": "string"
+      },
+      "LayoutDto": {
+        "additionalProperties": false,
+        "properties": {
+          "doors": {
+            "items": {
+              "$ref": "#/components/schemas/OpeningDto"
+            },
+            "title": "Doors",
+            "type": "array"
+          },
+          "lights": {
+            "items": {
+              "$ref": "#/components/schemas/LightDto"
+            },
+            "title": "Lights",
+            "type": "array"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/LayoutMetaDto"
+          },
+          "objects": {
+            "items": {
+              "$ref": "#/components/schemas/ObjectDto"
+            },
+            "title": "Objects",
+            "type": "array"
+          },
+          "physical_rooms": {
+            "items": {
+              "$ref": "#/components/schemas/RoomDto"
+            },
+            "title": "Physical Rooms",
+            "type": "array"
+          },
+          "rooms": {
+            "items": {
+              "$ref": "#/components/schemas/RoomDto"
+            },
+            "title": "Rooms",
+            "type": "array"
+          },
+          "texts": {
+            "items": {
+              "$ref": "#/components/schemas/TextDto"
+            },
+            "title": "Texts",
+            "type": "array"
+          },
+          "unassigned_objects": {
+            "items": {
+              "$ref": "#/components/schemas/ObjectDto"
+            },
+            "title": "Unassigned Objects",
+            "type": "array"
+          },
+          "unit": {
+            "title": "Unit",
+            "type": "string"
+          },
+          "virtual_dividers": {
+            "items": {
+              "$ref": "#/components/schemas/VirtualDividerDto"
+            },
+            "title": "Virtual Dividers",
+            "type": "array"
+          },
+          "walls": {
+            "items": {
+              "$ref": "#/components/schemas/WallDto"
+            },
+            "title": "Walls",
+            "type": "array"
+          },
+          "warnings": {
+            "items": {
+              "$ref": "#/components/schemas/WarningDto"
+            },
+            "title": "Warnings",
+            "type": "array"
+          },
+          "windows": {
+            "items": {
+              "$ref": "#/components/schemas/OpeningDto"
+            },
+            "title": "Windows",
+            "type": "array"
+          }
+        },
+        "required": [
+          "unit",
+          "meta"
+        ],
+        "title": "LayoutDto",
+        "type": "object"
+      },
+      "LayoutMetaDto": {
+        "additionalProperties": false,
+        "properties": {
+          "configuration_hash": {
+            "title": "Configuration Hash",
+            "type": "string"
+          },
+          "created_at": {
+            "title": "Created At",
+            "type": "string"
+          },
+          "engine_sha": {
+            "title": "Engine Sha",
+            "type": "string"
+          },
+          "feature_schema_versions": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "title": "Feature Schema Versions",
+            "type": "object"
+          },
+          "job_id": {
+            "title": "Job Id",
+            "type": "string"
+          },
+          "layout_rev": {
+            "default": 0,
+            "title": "Layout Rev",
+            "type": "integer"
+          },
+          "layout_schema": {
+            "title": "Layout Schema",
+            "type": "string"
+          },
+          "model_decision_sources": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "title": "Model Decision Sources",
+            "type": "object"
+          },
+          "model_versions": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "title": "Model Versions",
+            "type": "object"
+          },
+          "pipeline_version": {
+            "title": "Pipeline Version",
+            "type": "string"
+          },
+          "scale_factor": {
+            "title": "Scale Factor",
+            "type": "number"
+          },
+          "source_hash": {
+            "title": "Source Hash",
+            "type": "string"
+          },
+          "unit": {
+            "title": "Unit",
+            "type": "string"
+          },
+          "unit_source": {
+            "$ref": "#/components/schemas/UnitSource"
+          }
+        },
+        "required": [
+          "job_id",
+          "source_hash",
+          "engine_sha",
+          "layout_schema",
+          "pipeline_version",
+          "unit",
+          "unit_source",
+          "scale_factor",
+          "configuration_hash",
+          "created_at"
+        ],
+        "title": "LayoutMetaDto",
+        "type": "object"
+      },
+      "LayoutResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/LayoutDto"
+          },
+          "message": {
+            "default": "",
+            "title": "Message",
+            "type": "string"
+          },
+          "success": {
+            "default": true,
+            "title": "Success",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "data"
+        ],
+        "title": "LayoutResponse",
+        "type": "object"
+      },
+      "LightDto": {
+        "additionalProperties": false,
+        "properties": {
+          "confidence": {
+            "default": 1.0,
+            "title": "Confidence",
+            "type": "number"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "position": {
+            "$ref": "#/components/schemas/PointDto"
+          }
+        },
+        "required": [
+          "id",
+          "position"
+        ],
+        "title": "LightDto",
+        "type": "object"
+      },
+      "ModelInfoDto": {
+        "additionalProperties": false,
+        "properties": {
+          "checkpoint_uri": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Checkpoint Uri"
+          },
+          "created_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created At"
+          },
+          "feature_schema_version": {
+            "title": "Feature Schema Version",
+            "type": "string"
+          },
+          "metrics": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "title": "Metrics",
+            "type": "object"
+          },
+          "model_name": {
+            "title": "Model Name",
+            "type": "string"
+          },
+          "promoted_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Promoted At"
+          },
+          "status": {
+            "$ref": "#/components/schemas/ModelRegistryStatus"
+          },
+          "trained_on_engine_sha": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Trained On Engine Sha"
+          },
+          "version": {
+            "title": "Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "model_name",
+          "version",
+          "status",
+          "feature_schema_version"
+        ],
+        "title": "ModelInfoDto",
+        "type": "object"
+      },
+      "ModelListDto": {
+        "additionalProperties": false,
+        "properties": {
+          "models": {
+            "items": {
+              "$ref": "#/components/schemas/ModelInfoDto"
+            },
+            "title": "Models",
+            "type": "array"
+          }
+        },
+        "title": "ModelListDto",
+        "type": "object"
+      },
+      "ModelListResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/ModelListDto"
+          },
+          "message": {
+            "default": "",
+            "title": "Message",
+            "type": "string"
+          },
+          "success": {
+            "default": true,
+            "title": "Success",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "data"
+        ],
+        "title": "ModelListResponse",
+        "type": "object"
+      },
+      "ModelRegistryStatus": {
+        "enum": [
+          "candidate",
+          "shadow",
+          "promoted",
+          "rejected",
+          "rolled_back"
+        ],
+        "title": "ModelRegistryStatus",
+        "type": "string"
+      },
+      "ObjectDto": {
+        "additionalProperties": false,
+        "properties": {
+          "bbox": {
+            "$ref": "#/components/schemas/BBoxDto"
+          },
+          "block_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Block Name"
+          },
+          "center": {
+            "$ref": "#/components/schemas/PointDto"
+          },
+          "confidence": {
+            "default": 1.0,
+            "title": "Confidence",
+            "type": "number"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "kind": {
+            "default": "furniture",
+            "title": "Kind",
+            "type": "string"
+          },
+          "layer": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Layer"
+          },
+          "room_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Room Id"
+          }
+        },
+        "required": [
+          "id",
+          "center",
+          "bbox"
+        ],
+        "title": "ObjectDto",
+        "type": "object"
+      },
+      "OpeningDto": {
+        "additionalProperties": false,
+        "properties": {
+          "confidence": {
+            "default": 1.0,
+            "title": "Confidence",
+            "type": "number"
+          },
+          "end": {
+            "$ref": "#/components/schemas/PointDto"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/PortalKind"
+          },
+          "source_edge_ids": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Source Edge Ids",
+            "type": "array"
+          },
+          "start": {
+            "$ref": "#/components/schemas/PointDto"
+          }
+        },
+        "required": [
+          "id",
+          "kind",
+          "start",
+          "end"
+        ],
+        "title": "OpeningDto",
+        "type": "object"
+      },
+      "PointDto": {
+        "additionalProperties": false,
+        "properties": {
+          "x": {
+            "title": "X",
+            "type": "number"
+          },
+          "y": {
+            "title": "Y",
+            "type": "number"
+          }
+        },
+        "required": [
+          "x",
+          "y"
+        ],
+        "title": "PointDto",
+        "type": "object"
+      },
+      "PortalKind": {
+        "enum": [
+          "door",
+          "window",
+          "opening",
+          "unknown"
+        ],
+        "title": "PortalKind",
+        "type": "string"
+      },
+      "RoomDto": {
+        "additionalProperties": false,
+        "properties": {
+          "area_gross_m2": {
+            "title": "Area Gross M2",
+            "type": "number"
+          },
+          "area_m2": {
+            "title": "Area M2",
+            "type": "number"
+          },
+          "area_net_m2": {
+            "title": "Area Net M2",
+            "type": "number"
+          },
+          "bbox": {
+            "$ref": "#/components/schemas/BBoxDto"
+          },
+          "boundary": {
+            "items": {
+              "$ref": "#/components/schemas/PointDto"
+            },
+            "title": "Boundary",
+            "type": "array"
+          },
+          "center": {
+            "$ref": "#/components/schemas/PointDto"
+          },
+          "confidence": {
+            "title": "Confidence",
+            "type": "number"
+          },
+          "dimensions": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DimensionsDto"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "door_ids": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Door Ids",
+            "type": "array"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "kind": {
+            "title": "Kind",
+            "type": "string"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "neighbor_ids": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Neighbor Ids",
+            "type": "array"
+          },
+          "object_ids": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Object Ids",
+            "type": "array"
+          },
+          "parent_room_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Parent Room Id"
+          },
+          "perimeter_m": {
+            "title": "Perimeter M",
+            "type": "number"
+          },
+          "physical_room_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Physical Room Id"
+          },
+          "selectable": {
+            "default": true,
+            "title": "Selectable",
+            "type": "boolean"
+          },
+          "window_ids": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Window Ids",
+            "type": "array"
+          }
+        },
+        "required": [
+          "id",
+          "boundary",
+          "area_m2",
+          "area_net_m2",
+          "area_gross_m2",
+          "center",
+          "perimeter_m",
+          "bbox",
+          "confidence",
+          "kind"
+        ],
+        "title": "RoomDto",
+        "type": "object"
+      },
+      "TextDto": {
+        "additionalProperties": false,
+        "properties": {
+          "bbox": {
+            "$ref": "#/components/schemas/BBoxDto"
+          },
+          "confidence": {
+            "default": 1.0,
+            "title": "Confidence",
+            "type": "number"
+          },
+          "content": {
+            "title": "Content",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "layer": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Layer"
+          },
+          "position": {
+            "$ref": "#/components/schemas/PointDto"
+          },
+          "room_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Room Id"
+          },
+          "rotation": {
+            "default": 0.0,
+            "title": "Rotation",
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "content",
+          "position",
+          "bbox"
+        ],
+        "title": "TextDto",
+        "type": "object"
+      },
+      "TrainRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "force": {
+            "default": false,
+            "title": "Force",
+            "type": "boolean"
+          },
+          "model_name": {
+            "default": "face",
+            "title": "Model Name",
+            "type": "string"
+          }
+        },
+        "title": "TrainRequest",
+        "type": "object"
+      },
+      "UnitSource": {
+        "enum": [
+          "explicit",
+          "cad_metadata",
+          "fallback"
+        ],
+        "title": "UnitSource",
+        "type": "string"
+      },
+      "ValidationError": {
+        "properties": {
+          "ctx": {
+            "title": "Context",
+            "type": "object"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "title": "Location",
+            "type": "array"
+          },
+          "msg": {
+            "title": "Message",
+            "type": "string"
+          },
+          "type": {
+            "title": "Error Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError",
+        "type": "object"
+      },
+      "VirtualDividerDto": {
+        "additionalProperties": false,
+        "properties": {
+          "end": {
+            "$ref": "#/components/schemas/PointDto"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "start": {
+            "$ref": "#/components/schemas/PointDto"
+          }
+        },
+        "required": [
+          "id",
+          "start",
+          "end"
+        ],
+        "title": "VirtualDividerDto",
+        "type": "object"
+      },
+      "WallDto": {
+        "additionalProperties": false,
+        "properties": {
+          "confidence": {
+            "default": 1.0,
+            "title": "Confidence",
+            "type": "number"
+          },
+          "end": {
+            "$ref": "#/components/schemas/PointDto"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "predicted_class": {
+            "default": "wall",
+            "title": "Predicted Class",
+            "type": "string"
+          },
+          "primitive_ids": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Primitive Ids",
+            "type": "array"
+          },
+          "start": {
+            "$ref": "#/components/schemas/PointDto"
+          }
+        },
+        "required": [
+          "id",
+          "start",
+          "end"
+        ],
+        "title": "WallDto",
+        "type": "object"
+      },
+      "WarningCode": {
+        "enum": [
+          "UNIT_INFERRED",
+          "LOW_ENTITY_CONFIDENCE",
+          "LOW_FACE_CONFIDENCE",
+          "GAP_CLOSE_REJECTED",
+          "INVALID_FACE_REPAIRED",
+          "OBJECT_UNASSIGNED",
+          "AMBIGUOUS_ROOM",
+          "NO_ROOMS_FOUND",
+          "CAD_PARSE_WARNING"
+        ],
+        "title": "WarningCode",
+        "type": "string"
+      },
+      "WarningDto": {
+        "additionalProperties": false,
+        "properties": {
+          "code": {
+            "$ref": "#/components/schemas/WarningCode"
+          },
+          "message": {
+            "title": "Message",
+            "type": "string"
+          },
+          "severity": {
+            "$ref": "#/components/schemas/WarningSeverity"
+          },
+          "target_ids": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Target Ids",
+            "type": "array"
+          }
+        },
+        "required": [
+          "code",
+          "severity",
+          "message"
+        ],
+        "title": "WarningDto",
+        "type": "object"
+      },
+      "WarningSeverity": {
+        "enum": [
+          "info",
+          "warning",
+          "error"
+        ],
+        "title": "WarningSeverity",
+        "type": "string"
+      }
+    }
+  },
+  "info": {
+    "title": "GNN CAD Analyzer",
+    "version": "1.0.0"
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/api/v1/admin/train": {
+      "post": {
+        "operationId": "train_api_v1_admin_train_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TrainRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Train",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/api/v1/health": {
+      "get": {
+        "operationId": "health_api_v1_health_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Health",
+        "tags": [
+          "health"
+        ]
+      }
+    },
+    "/api/v1/jobs": {
+      "post": {
+        "operationId": "create_job_api_v1_jobs_post",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_create_job_api_v1_jobs_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobCreatedResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Create Job",
+        "tags": [
+          "jobs"
+        ]
+      }
+    },
+    "/api/v1/jobs/from-url": {
+      "post": {
+        "operationId": "create_job_from_url_api_v1_jobs_from_url_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateJobFromUrlRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobCreatedResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Create Job From Url",
+        "tags": [
+          "jobs"
+        ]
+      }
+    },
+    "/api/v1/jobs/{job_id}": {
+      "get": {
+        "operationId": "get_job_api_v1_jobs__job_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "job_id",
+            "required": true,
+            "schema": {
+              "title": "Job Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Job",
+        "tags": [
+          "jobs"
+        ]
+      }
+    },
+    "/api/v1/jobs/{job_id}/accept": {
+      "post": {
+        "operationId": "accept_job_api_v1_jobs__job_id__accept_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "job_id",
+            "required": true,
+            "schema": {
+              "title": "Job Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Accept Job",
+        "tags": [
+          "feedback"
+        ]
+      }
+    },
+    "/api/v1/jobs/{job_id}/dividers": {
+      "delete": {
+        "operationId": "delete_dividers_api_v1_jobs__job_id__dividers_delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "job_id",
+            "required": true,
+            "schema": {
+              "title": "Job Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Delete Dividers",
+        "tags": [
+          "feedback"
+        ]
+      },
+      "post": {
+        "operationId": "create_divider_api_v1_jobs__job_id__dividers_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "job_id",
+            "required": true,
+            "schema": {
+              "title": "Job Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DividerRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Create Divider",
+        "tags": [
+          "feedback"
+        ]
+      }
+    },
+    "/api/v1/jobs/{job_id}/events": {
+      "post": {
+        "operationId": "create_event_api_v1_jobs__job_id__events_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "job_id",
+            "required": true,
+            "schema": {
+              "title": "Job Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FeedbackEventRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Create Event",
+        "tags": [
+          "feedback"
+        ]
+      }
+    },
+    "/api/v1/jobs/{job_id}/faces": {
+      "get": {
+        "operationId": "list_faces_api_v1_jobs__job_id__faces_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "job_id",
+            "required": true,
+            "schema": {
+              "title": "Job Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Faces",
+        "tags": [
+          "feedback"
+        ]
+      }
+    },
+    "/api/v1/jobs/{job_id}/layout": {
+      "get": {
+        "operationId": "get_layout_api_v1_jobs__job_id__layout_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "job_id",
+            "required": true,
+            "schema": {
+              "title": "Job Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LayoutResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Layout",
+        "tags": [
+          "jobs"
+        ]
+      }
+    },
+    "/api/v1/models": {
+      "get": {
+        "operationId": "list_models_api_v1_models_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ModelListResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "List Models",
+        "tags": [
+          "models"
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,1 @@
+-- Runtime applies packages/store/db/migrations. This directory mirrors them for infra.

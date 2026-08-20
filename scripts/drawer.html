@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CAD layout viewer</title>
+  <style>
+    :root {
+      --bg: #0f1419; --panel: #1a222c; --line: #2a3542; --text: #e8eef4; --muted: #8b9aab; --accent: #6cb6ff;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; height: 100%; background: var(--bg); color: var(--text); font: 13px/1.4 ui-sans-serif, system-ui, sans-serif; }
+    header {
+      display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+      padding: 10px 12px; border-bottom: 1px solid var(--line); background: var(--panel);
+    }
+    header label { color: var(--muted); display: flex; align-items: center; gap: 6px; }
+    input[type="text"] {
+      background: #0f1419; color: var(--text); border: 1px solid var(--line);
+      border-radius: 6px; padding: 6px 8px; min-width: 280px;
+    }
+    input#job { min-width: 320px; font-family: ui-monospace, monospace; }
+    button, .file-btn {
+      background: var(--accent); color: #081018; border: 0; border-radius: 6px;
+      padding: 7px 12px; font-weight: 650; cursor: pointer;
+    }
+    button.secondary, .file-btn { background: #2a3542; color: var(--text); }
+    .file-btn { display: inline-block; }
+    #file { display: none; }
+    main { display: grid; grid-template-columns: 1fr 260px; height: calc(100% - 54px); }
+    canvas { width: 100%; height: 100%; display: block; background: #0b1015; cursor: grab; }
+    canvas.dragging { cursor: grabbing; }
+    aside { border-left: 1px solid var(--line); padding: 12px; overflow: auto; background: var(--panel); }
+    aside h2 { margin: 0 0 8px; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+    .swatch { display: inline-block; width: 12px; height: 12px; border-radius: 2px; margin-right: 8px; vertical-align: -1px; }
+    .row { display: flex; justify-content: space-between; gap: 8px; margin: 4px 0; color: var(--muted); }
+    .row b { color: var(--text); font-weight: 600; }
+    #status { color: var(--muted); max-width: 40vw; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    #status.err { color: #ff8a8a; }
+    #hover { min-height: 4.5em; white-space: pre-wrap; font-family: ui-monospace, monospace; font-size: 12px; }
+    .warn { color: #e6c07b; margin: 6px 0; }
+    @media (max-width: 900px) { main { grid-template-columns: 1fr; } aside { display: none; } }
+  </style>
+</head>
+<body>
+  <header>
+    <label>API <input id="api" type="text" value="http://localhost:8000" /></label>
+    <label>job <input id="job" type="text" value="b3953bc1-bcb7-4d74-9eca-3a064f675bfb" /></label>
+    <button id="load">Load layout</button>
+    <label class="file-btn">Open JSON<input id="file" type="file" accept="application/json,.json" /></label>
+    <label><input id="physical" type="checkbox" /> physical rooms</label>
+    <span id="status">Idle</span>
+  </header>
+  <main>
+    <canvas id="c"></canvas>
+    <aside>
+      <h2>Legend</h2>
+      <div><span class="swatch" style="background:rgba(108,182,255,.3);outline:1px solid #6cb6ff"></span>Rooms</div>
+      <div><span class="swatch" style="background:#d7dee7"></span>Walls</div>
+      <div><span class="swatch" style="background:#ff6b6b"></span>Doors</div>
+      <div><span class="swatch" style="background:#3ecfcf"></span>Windows</div>
+      <div><span class="swatch" style="background:#c9a227"></span>Virtual dividers</div>
+      <div><span class="swatch" style="background:#b388ff"></span>Objects</div>
+      <div><span class="swatch" style="background:#9ad07a"></span>Texts</div>
+      <h2 style="margin-top:16px">Counts</h2>
+      <div id="counts"></div>
+      <h2 style="margin-top:16px">Hover</h2>
+      <div id="hover">Wheel zoom, drag pan.</div>
+      <h2 style="margin-top:16px">Warnings</h2>
+      <div id="warnings"></div>
+    </aside>
+  </main>
+  <script>
+    const canvas = document.getElementById("c");
+    const ctx = canvas.getContext("2d");
+    const statusEl = document.getElementById("status");
+    const countsEl = document.getElementById("counts");
+    const hoverEl = document.getElementById("hover");
+    const warningsEl = document.getElementById("warnings");
+    let layout = null, view = { scale: 1, ox: 40, oy: 40 }, drag = null, hoverHit = null;
+
+    function setStatus(msg, err) { statusEl.textContent = msg; statusEl.className = err ? "err" : ""; }
+    function unwrap(payload) {
+      if (payload?.data?.rooms !== undefined) return payload.data;
+      if (payload?.rooms !== undefined) return payload;
+      throw new Error("Not a layout JSON (API {data} or snapshot layout.json)");
+    }
+    async function loadFromApi() {
+      const api = document.getElementById("api").value.replace(/\/$/, "");
+      const job = document.getElementById("job").value.trim();
+      setStatus("Fetching…");
+      const jobRes = await fetch(`${api}/api/v1/jobs/${job}`);
+      const jobBody = await jobRes.json().catch(() => ({}));
+      if (!jobRes.ok) throw new Error(jobBody.error?.detail || `job HTTP ${jobRes.status}`);
+      const st = jobBody.data?.status || jobBody.status;
+      if (st && st !== "succeeded") throw new Error(`job status is ${st}`);
+      const res = await fetch(`${api}/api/v1/jobs/${job}/layout`);
+      const body = await res.json();
+      if (!res.ok) throw new Error(body.error?.detail || `layout HTTP ${res.status}`);
+      applyLayout(unwrap(body));
+      setStatus(`Loaded ${job} (${st || "ok"})`);
+    }
+    function applyLayout(next) { layout = next; fit(); renderCounts(); renderWarnings(); draw(); }
+    function roomsOf(data) {
+      return document.getElementById("physical").checked ? (data.physical_rooms || []) : (data.rooms || []);
+    }
+    function bounds(data) {
+      let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+      const bump = (x, y) => { if (Number.isFinite(x) && Number.isFinite(y)) { minX = Math.min(minX, x); minY = Math.min(minY, y); maxX = Math.max(maxX, x); maxY = Math.max(maxY, y); } };
+      for (const r of roomsOf(data)) for (const p of r.boundary || []) bump(p.x, p.y);
+      for (const w of data.walls || []) { bump(w.start.x, w.start.y); bump(w.end.x, w.end.y); }
+      for (const d of data.doors || []) { bump(d.start.x, d.start.y); bump(d.end.x, d.end.y); }
+      for (const w of data.windows || []) { bump(w.start.x, w.start.y); bump(w.end.x, w.end.y); }
+      if (!Number.isFinite(minX)) return { minX: 0, minY: 0, maxX: 1, maxY: 1 };
+      return { minX, minY, maxX, maxY };
+    }
+    function fit() {
+      if (!layout) return;
+      const pad = 48, b = bounds(layout);
+      const w = Math.max(1e-6, b.maxX - b.minX), h = Math.max(1e-6, b.maxY - b.minY);
+      view.scale = Math.min((canvas.width - pad * 2) / w, (canvas.height - pad * 2) / h);
+      view.ox = pad - b.minX * view.scale + (canvas.width - pad * 2 - w * view.scale) / 2;
+      view.oy = pad + b.maxY * view.scale + (canvas.height - pad * 2 - h * view.scale) / 2;
+    }
+    function worldToScreen(x, y) { return { x: x * view.scale + view.ox, y: -y * view.scale + view.oy }; }
+    function screenToWorld(sx, sy) { return { x: (sx - view.ox) / view.scale, y: -(sy - view.oy) / view.scale }; }
+    function resize() {
+      const rect = canvas.getBoundingClientRect(), dpr = window.devicePixelRatio || 1;
+      canvas.width = Math.max(1, Math.floor(rect.width * dpr));
+      canvas.height = Math.max(1, Math.floor(rect.height * dpr));
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      canvas.style.width = rect.width + "px"; canvas.style.height = rect.height + "px";
+      if (layout) fit(); draw();
+    }
+    function strokeSeg(a, b, color, width) {
+      const p = worldToScreen(a.x, a.y), q = worldToScreen(b.x, b.y);
+      ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(q.x, q.y);
+      ctx.strokeStyle = color; ctx.lineWidth = width; ctx.stroke();
+    }
+    function pointInPoly(x, y, pts) {
+      let inside = false;
+      for (let i = 0, j = pts.length - 1; i < pts.length; j = i++) {
+        const xi = pts[i].x, yi = pts[i].y, xj = pts[j].x, yj = pts[j].y;
+        if (((yi > y) !== (yj > y)) && (x < (xj - xi) * (y - yi) / ((yj - yi) || 1e-12) + xi)) inside = !inside;
+      }
+      return inside;
+    }
+    function draw() {
+      const rect = canvas.getBoundingClientRect();
+      ctx.clearRect(0, 0, rect.width, rect.height);
+      if (!layout) return;
+      ctx.lineJoin = "round"; ctx.lineCap = "round";
+      for (const room of roomsOf(layout)) {
+        const pts = room.boundary || []; if (pts.length < 3) continue;
+        ctx.beginPath();
+        const first = worldToScreen(pts[0].x, pts[0].y); ctx.moveTo(first.x, first.y);
+        for (let i = 1; i < pts.length; i++) { const p = worldToScreen(pts[i].x, pts[i].y); ctx.lineTo(p.x, p.y); }
+        ctx.closePath();
+        ctx.fillStyle = hoverHit && hoverHit.id === room.id ? "rgba(108,182,255,0.4)" : "rgba(108,182,255,0.18)";
+        ctx.fill(); ctx.strokeStyle = "#6cb6ff"; ctx.lineWidth = 1; ctx.stroke();
+        if (room.center) {
+          const c = worldToScreen(room.center.x, room.center.y);
+          ctx.fillStyle = "#e8eef4"; ctx.font = "12px ui-sans-serif"; ctx.textAlign = "center";
+          ctx.fillText(room.name || room.kind || room.id, c.x, c.y);
+        }
+      }
+      for (const w of layout.walls || []) strokeSeg(w.start, w.end, "#d7dee7", 1.6);
+      for (const d of layout.doors || []) strokeSeg(d.start, d.end, "#ff6b6b", 3.5);
+      for (const w of layout.windows || []) strokeSeg(w.start, w.end, "#3ecfcf", 2.6);
+      for (const v of layout.virtual_dividers || []) strokeSeg(v.start, v.end, "#c9a227", 1.4);
+      for (const obj of [...(layout.objects || []), ...(layout.unassigned_objects || [])]) {
+        const p = worldToScreen(obj.center.x, obj.center.y);
+        ctx.beginPath(); ctx.arc(p.x, p.y, 4, 0, Math.PI * 2); ctx.fillStyle = "#b388ff"; ctx.fill();
+      }
+      for (const t of layout.texts || []) {
+        const p = worldToScreen(t.position.x, t.position.y);
+        ctx.fillStyle = "#9ad07a"; ctx.font = "11px ui-sans-serif"; ctx.textAlign = "left";
+        ctx.fillText(t.content || "", p.x, p.y);
+      }
+    }
+    function renderCounts() {
+      if (!layout) { countsEl.textContent = ""; return; }
+      const rows = [["rooms",(layout.rooms||[]).length],["physical_rooms",(layout.physical_rooms||[]).length],["walls",(layout.walls||[]).length],["doors",(layout.doors||[]).length],["windows",(layout.windows||[]).length],["objects",(layout.objects||[]).length],["texts",(layout.texts||[]).length],["unit",layout.unit||"m"]];
+      countsEl.innerHTML = rows.map(([k,v]) => `<div class="row">${k}<b>${v}</b></div>`).join("");
+    }
+    function renderWarnings() {
+      const list = layout?.warnings || [];
+      warningsEl.innerHTML = list.length ? list.map(w => `<div class="warn">${w.code}: ${w.message}</div>`).join("") : "<div class='row'>none</div>";
+    }
+    canvas.addEventListener("pointerdown", e => { canvas.setPointerCapture(e.pointerId); canvas.classList.add("dragging"); drag = { x: e.clientX, y: e.clientY, ox: view.ox, oy: view.oy }; });
+    canvas.addEventListener("pointerup", () => { drag = null; canvas.classList.remove("dragging"); });
+    canvas.addEventListener("pointermove", e => {
+      const rect = canvas.getBoundingClientRect(), sx = e.clientX - rect.left, sy = e.clientY - rect.top;
+      if (drag) { view.ox = drag.ox + (e.clientX - drag.x); view.oy = drag.oy + (e.clientY - drag.y); draw(); return; }
+      if (!layout) return;
+      const w = screenToWorld(sx, sy);
+      hoverHit = roomsOf(layout).find(r => pointInPoly(w.x, w.y, r.boundary || [])) || null;
+      hoverEl.textContent = hoverHit
+        ? `${hoverHit.name || hoverHit.kind}\nid ${hoverHit.id}\narea ${hoverHit.area_m2?.toFixed?.(2) ?? "?"} m²\n${w.x.toFixed(2)}, ${w.y.toFixed(2)} m`
+        : `${w.x.toFixed(2)}, ${w.y.toFixed(2)} m`;
+      draw();
+    });
+    canvas.addEventListener("wheel", e => {
+      e.preventDefault();
+      const rect = canvas.getBoundingClientRect(), sx = e.clientX - rect.left, sy = e.clientY - rect.top;
+      const before = screenToWorld(sx, sy), factor = e.deltaY < 0 ? 1.12 : 1 / 1.12;
+      view.scale *= factor; view.ox = sx - before.x * view.scale; view.oy = sy + before.y * view.scale; draw();
+    }, { passive: false });
+    document.getElementById("load").addEventListener("click", () => loadFromApi().catch(err => setStatus(err.message, true)));
+    document.getElementById("physical").addEventListener("change", () => { if (layout) { fit(); draw(); } });
+    document.getElementById("file").addEventListener("change", e => {
+      const file = e.target.files?.[0]; if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => { try { applyLayout(unwrap(JSON.parse(reader.result))); setStatus("Loaded " + file.name); } catch (err) { setStatus(err.message, true); } };
+      reader.readAsText(file);
+    });
+    window.addEventListener("resize", resize);
+    resize();
+  </script>
+</body>
+</html>
