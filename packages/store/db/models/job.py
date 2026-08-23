@@ -27,3 +27,4 @@ class JobRecord:
     worker_id: str | None
     original_filename: str | None
     snapshot_version: int | None
+    layout_rev: int = 0

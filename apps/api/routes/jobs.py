@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import uuid
-from datetime import datetime, timezone
 from pathlib import Path
 from urllib.parse import urlparse
 
@@ -9,11 +8,13 @@ import httpx
 from fastapi import APIRouter, Depends, File, Form, UploadFile
 
 from apps.api.dependencies import (
+    event_store,
     get_engine_sha,
     get_object_store,
     get_queue,
     job_repo,
     model_repo,
+    snapshot_store,
 )
 from packages.common.configuration import Settings, get_settings
 from packages.common.errors import (
@@ -22,7 +23,6 @@ from packages.common.errors import (
     JobFailedError,
     JobNotFoundError,
     JobNotReadyError,
-    LayoutNotFoundError,
     UnsupportedFormatError,
 )
 from packages.common.hashing import configuration_hash, sha256_hex
@@ -38,11 +38,12 @@ from packages.contracts.enums import JobStatus
 from packages.ingest.dxf_loader import sniff_format
 from packages.store.db.repositories.jobs import JobRepository
 from packages.store.db.repositories.models import ModelRegistryRepository
+from packages.store.events import EventStore
+from packages.store.feedback import derived_layout
 from packages.store.jobs import JobQueue
 from packages.store.models_registry import resolve_pinned_models
 from packages.store.object_store import ObjectStore
 from packages.store.snapshots import SnapshotStore
-from apps.api.dependencies import snapshot_store
 
 router = APIRouter()
 
@@ -203,6 +204,7 @@ def get_layout(
     job_id: str,
     jobs: JobRepository = Depends(job_repo),
     snaps: SnapshotStore = Depends(snapshot_store),
+    events: EventStore = Depends(event_store),
 ) -> LayoutResponse:
     job = jobs.get(job_id)
     if job is None:
@@ -211,8 +213,5 @@ def get_layout(
         raise JobFailedError(job_id, job.error_detail or job.error_code or "failed")
     if job.status != JobStatus.SUCCEEDED.value:
         raise JobNotReadyError(job_id, job.status)
-    try:
-        layout = snaps.load_layout(job_id)
-    except Exception as exc:
-        raise LayoutNotFoundError(job_id) from exc
+    layout = derived_layout(job_id, events=events, snapshots=snaps)
     return LayoutResponse(success=True, data=layout, message="")

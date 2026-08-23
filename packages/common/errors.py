@@ -88,6 +88,32 @@ class LayoutNotFoundError(AppError):
         super().__init__(ErrorCode.LAYOUT_NOT_FOUND, f"Layout for job {job_id} was not found")
 
 
+class LayoutRevisionConflictError(AppError):
+    def __init__(self, job_id: str, expected: int, actual: int) -> None:
+        super().__init__(
+            ErrorCode.LAYOUT_REVISION_CONFLICT,
+            f"Layout revision conflict for job {job_id}: expected {expected}, actual {actual}",
+        )
+
+
+class InvalidFeedbackActionError(AppError):
+    def __init__(self, detail: str) -> None:
+        super().__init__(ErrorCode.INVALID_FEEDBACK_ACTION, detail)
+
+
+class InvalidTargetError(AppError):
+    def __init__(self, detail: str, fields: dict[str, str] | None = None) -> None:
+        super().__init__(ErrorCode.INVALID_TARGET, detail, fields)
+
+
+class EventAlreadyRetractedError(AppError):
+    def __init__(self, event_id: str) -> None:
+        super().__init__(
+            ErrorCode.EVENT_ALREADY_RETRACTED,
+            f"Event {event_id} has already been retracted",
+        )
+
+
 class StorageError(AppError):
     def __init__(self, detail: str) -> None:
         super().__init__(ErrorCode.STORAGE_ERROR, detail)

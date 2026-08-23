@@ -31,6 +31,7 @@ def _row(data: dict[str, Any]) -> JobRecord:
         worker_id=data["worker_id"],
         original_filename=data["original_filename"],
         snapshot_version=data["snapshot_version"],
+        layout_rev=int(data.get("layout_rev") or 0),
     )
 
 
@@ -202,12 +203,17 @@ class JobRepository:
 
     def layout_rev(self, job_id: str) -> int:
         with self._conn.cursor() as cur:
-            cur.execute(
-                "SELECT COALESCE(MAX(layout_rev), 0) FROM layout_revisions WHERE job_id = %s",
-                (job_id,),
-            )
+            cur.execute("SELECT layout_rev FROM jobs WHERE id = %s", (job_id,))
             row = cur.fetchone()
-        return int(row[0]) if row else 0
+        if row is not None and row[0] is not None:
+            return int(row[0])
+        return 0
 
     def now(self) -> datetime:
         return datetime.now(timezone.utc)
+
+    def list_succeeded(self) -> list[JobRecord]:
+        with self._conn.cursor(row_factory=dict_row) as cur:
+            cur.execute("SELECT * FROM jobs WHERE status = 'succeeded' ORDER BY created_at")
+            rows = cur.fetchall()
+        return [_row(r) for r in rows]

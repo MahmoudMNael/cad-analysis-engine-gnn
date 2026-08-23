@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import math
 from typing import Any
 
 from pydantic import Field, field_validator
@@ -20,6 +21,14 @@ class FeedbackEventRequest(RequestModel):
     def _targets(cls, value: list[str]) -> list[str]:
         return [require_non_empty_id(item) for item in value]
 
+    @field_validator("actor")
+    @classmethod
+    def _actor(cls, value: str) -> str:
+        cleaned = str(value).strip()
+        if not cleaned:
+            raise ValueError("actor must be non-empty")
+        return cleaned
+
 
 class DividerRequest(RequestModel):
     start_x: float
@@ -27,6 +36,13 @@ class DividerRequest(RequestModel):
     end_x: float
     end_y: float
     expected_layout_rev: int | None = None
+
+    @field_validator("start_x", "start_y", "end_x", "end_y")
+    @classmethod
+    def _finite(cls, value: float) -> float:
+        if not math.isfinite(value):
+            raise ValueError("coordinates must be finite")
+        return float(value)
 
 
 class FeedbackEventDto(ApiModel):
@@ -50,4 +66,15 @@ class FeedbackEventDto(ApiModel):
 class FeedbackEventResponse(ApiModel):
     success: bool = True
     data: FeedbackEventDto
+    message: str = ""
+
+
+class FeedbackEventListDto(ApiModel):
+    events: list[FeedbackEventDto] = Field(default_factory=list)
+    layout_rev: int = 0
+
+
+class FeedbackEventListResponse(ApiModel):
+    success: bool = True
+    data: FeedbackEventListDto
     message: str = ""

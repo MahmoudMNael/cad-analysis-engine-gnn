@@ -191,6 +191,95 @@
         "title": "DividerRequest",
         "type": "object"
       },
+      "FaceDto": {
+        "additionalProperties": false,
+        "properties": {
+          "accepted_as_room": {
+            "title": "Accepted As Room",
+            "type": "boolean"
+          },
+          "adjacent_unbounded": {
+            "default": false,
+            "title": "Adjacent Unbounded",
+            "type": "boolean"
+          },
+          "area_m2": {
+            "title": "Area M2",
+            "type": "number"
+          },
+          "boundary": {
+            "items": {
+              "$ref": "#/components/schemas/PointDto"
+            },
+            "title": "Boundary",
+            "type": "array"
+          },
+          "confidence": {
+            "title": "Confidence",
+            "type": "number"
+          },
+          "decision_source": {
+            "title": "Decision Source",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "predicted_class": {
+            "title": "Predicted Class",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "boundary",
+          "area_m2",
+          "predicted_class",
+          "confidence",
+          "decision_source",
+          "accepted_as_room"
+        ],
+        "title": "FaceDto",
+        "type": "object"
+      },
+      "FaceListDto": {
+        "additionalProperties": false,
+        "properties": {
+          "faces": {
+            "items": {
+              "$ref": "#/components/schemas/FaceDto"
+            },
+            "title": "Faces",
+            "type": "array"
+          }
+        },
+        "title": "FaceListDto",
+        "type": "object"
+      },
+      "FaceListResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/FaceListDto"
+          },
+          "message": {
+            "default": "",
+            "title": "Message",
+            "type": "string"
+          },
+          "success": {
+            "default": true,
+            "title": "Success",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "data"
+        ],
+        "title": "FaceListResponse",
+        "type": "object"
+      },
       "FeedbackAction": {
         "enum": [
           "accept",
@@ -206,6 +295,114 @@
         ],
         "title": "FeedbackAction",
         "type": "string"
+      },
+      "FeedbackEventDto": {
+        "additionalProperties": false,
+        "properties": {
+          "action": {
+            "$ref": "#/components/schemas/FeedbackAction"
+          },
+          "actor": {
+            "title": "Actor",
+            "type": "string"
+          },
+          "event_id": {
+            "title": "Event Id",
+            "type": "string"
+          },
+          "job_id": {
+            "title": "Job Id",
+            "type": "string"
+          },
+          "layout_rev": {
+            "title": "Layout Rev",
+            "type": "integer"
+          },
+          "payload": {
+            "additionalProperties": true,
+            "title": "Payload",
+            "type": "object"
+          },
+          "retracted_by_event_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Retracted By Event Id"
+          },
+          "sequence": {
+            "title": "Sequence",
+            "type": "integer"
+          },
+          "target_ids": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Target Ids",
+            "type": "array"
+          },
+          "ts": {
+            "title": "Ts",
+            "type": "string"
+          }
+        },
+        "required": [
+          "event_id",
+          "job_id",
+          "sequence",
+          "ts",
+          "actor",
+          "action",
+          "layout_rev"
+        ],
+        "title": "FeedbackEventDto",
+        "type": "object"
+      },
+      "FeedbackEventListDto": {
+        "additionalProperties": false,
+        "properties": {
+          "events": {
+            "items": {
+              "$ref": "#/components/schemas/FeedbackEventDto"
+            },
+            "title": "Events",
+            "type": "array"
+          },
+          "layout_rev": {
+            "default": 0,
+            "title": "Layout Rev",
+            "type": "integer"
+          }
+        },
+        "title": "FeedbackEventListDto",
+        "type": "object"
+      },
+      "FeedbackEventListResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/FeedbackEventListDto"
+          },
+          "message": {
+            "default": "",
+            "title": "Message",
+            "type": "string"
+          },
+          "success": {
+            "default": true,
+            "title": "Success",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "data"
+        ],
+        "title": "FeedbackEventListResponse",
+        "type": "object"
       },
       "FeedbackEventRequest": {
         "additionalProperties": false,
@@ -246,6 +443,29 @@
           "action"
         ],
         "title": "FeedbackEventRequest",
+        "type": "object"
+      },
+      "FeedbackEventResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/FeedbackEventDto"
+          },
+          "message": {
+            "default": "",
+            "title": "Message",
+            "type": "string"
+          },
+          "success": {
+            "default": true,
+            "title": "Success",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "data"
+        ],
+        "title": "FeedbackEventResponse",
         "type": "object"
       },
       "HTTPValidationError": {
@@ -1626,7 +1846,9 @@
           "200": {
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/FeedbackEventResponse"
+                }
               }
             },
             "description": "Successful Response"
@@ -1666,7 +1888,9 @@
           "200": {
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/FeedbackEventListResponse"
+                }
               }
             },
             "description": "Successful Response"
@@ -1714,7 +1938,9 @@
           "200": {
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/FeedbackEventResponse"
+                }
               }
             },
             "description": "Successful Response"
@@ -1764,7 +1990,9 @@
           "200": {
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/FeedbackEventResponse"
+                }
               }
             },
             "description": "Successful Response"
@@ -1804,7 +2032,9 @@
           "200": {
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/FaceListResponse"
+                }
               }
             },
             "description": "Successful Response"
