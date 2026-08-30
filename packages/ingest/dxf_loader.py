@@ -44,7 +44,7 @@ KIND_BY_DXFTYPE = {
 def sniff_format(filename: str, header: bytes) -> CadFormat:
     lower = filename.lower()
     if lower.endswith(".dwg") or header.startswith(b"AC10"):
-        raise UnsupportedFormatError("DWG is not supported; upload DXF")
+        return CadFormat.DWG
     if lower.endswith(".dxf"):
         return CadFormat.DXF
     text = header.decode("latin-1", errors="ignore")

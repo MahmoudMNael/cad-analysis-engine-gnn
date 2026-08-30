@@ -58,6 +58,9 @@ class Settings(BaseSettings):
     smtp_from: str = ""
     smtp_use_tls: bool = True
 
+    oda_converter_path: str = ""
+    oda_dxf_version: str = "R2018"
+
     # GNN-C training / promotion. Not part of job configuration_hash.
     face_train_min_labeled_jobs: int = 50
     face_train_min_classes: int = 2

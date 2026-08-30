@@ -34,6 +34,7 @@ services:
       CAD_DATABASE_URL: postgresql://cad:cad@postgres:5432/cad
       CAD_REDIS_URL: redis://redis:6379/0
       CAD_OBJECT_STORE_DIR: /object-storage
+      CAD_ODA_CONVERTER_PATH: /usr/local/bin/oda-headless.sh
       CAD_FRONTEND_TRAINER_BASE_URL: ${CAD_FRONTEND_TRAINER_BASE_URL:-}
       CAD_SMTP_HOST: ${CAD_SMTP_HOST:-}
       CAD_SMTP_PORT: ${CAD_SMTP_PORT:-587}
@@ -61,6 +62,7 @@ services:
       CAD_DATABASE_URL: postgresql://cad:cad@postgres:5432/cad
       CAD_REDIS_URL: redis://redis:6379/0
       CAD_OBJECT_STORE_DIR: /object-storage
+      CAD_ODA_CONVERTER_PATH: /usr/local/bin/oda-headless.sh
       CAD_FRONTEND_TRAINER_BASE_URL: ${CAD_FRONTEND_TRAINER_BASE_URL:-}
       CAD_SMTP_HOST: ${CAD_SMTP_HOST:-}
       CAD_SMTP_PORT: ${CAD_SMTP_PORT:-587}
@@ -86,6 +88,7 @@ services:
       CAD_DATABASE_URL: postgresql://cad:cad@postgres:5432/cad
       CAD_REDIS_URL: redis://redis:6379/0
       CAD_OBJECT_STORE_DIR: /object-storage
+      CAD_ODA_CONVERTER_PATH: /usr/local/bin/oda-headless.sh
       CAD_RUN_INTEGRATION: "1"
     volumes:
       - ..:/app

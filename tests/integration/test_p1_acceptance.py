@@ -96,10 +96,19 @@ def test_upload_queue_process_layout(client: TestClient, tmp_path: Path):
 def test_unsupported_format(client: TestClient):
     res = client.post(
         "/api/v1/jobs",
-        files={"file": ("plan.dwg", b"AC1027xxxx", "application/octet-stream")},
+        files={"file": ("plan.pdf", b"%PDF-1.4 fake", "application/pdf")},
     )
     assert res.status_code == 400
     assert res.json()["error"]["code"] == "UNSUPPORTED_FORMAT"
+
+
+def test_dwg_upload_accepted(client: TestClient):
+    res = client.post(
+        "/api/v1/jobs",
+        files={"file": ("plan.dwg", b"AC1027xxxx", "application/octet-stream")},
+    )
+    assert res.status_code == 202, res.text
+    assert res.json()["data"]["status"] == "queued"
 
 
 def test_layout_not_ready(client: TestClient, tmp_path: Path):
