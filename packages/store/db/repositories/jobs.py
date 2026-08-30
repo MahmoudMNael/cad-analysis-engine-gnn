@@ -32,6 +32,7 @@ def _row(data: dict[str, Any]) -> JobRecord:
         original_filename=data["original_filename"],
         snapshot_version=data["snapshot_version"],
         layout_rev=int(data.get("layout_rev") or 0),
+        notify_email=data.get("notify_email"),
     )
 
 
@@ -52,6 +53,7 @@ class JobRepository:
         model_versions: dict[str, str],
         unit: str | None = None,
         unit_source: str | None = None,
+        notify_email: str | None = None,
     ) -> JobRecord:
         with self._conn.cursor(row_factory=dict_row) as cur:
             cur.execute(
@@ -59,9 +61,10 @@ class JobRepository:
                 INSERT INTO jobs (
                     id, source_hash, status, source_uri, consent_training,
                     original_filename, configuration_hash, pipeline_version,
-                    engine_sha, model_versions_json, unit, unit_source
+                    engine_sha, model_versions_json, unit, unit_source,
+                    notify_email
                 )
-                VALUES (%s, %s, 'queued', %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                VALUES (%s, %s, 'queued', %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                 RETURNING *
                 """,
                 (
@@ -76,6 +79,7 @@ class JobRepository:
                     Json(model_versions),
                     unit,
                     unit_source,
+                    notify_email,
                 ),
             )
             row = cur.fetchone()
@@ -136,6 +140,22 @@ class JobRepository:
                 (unit, unit_source, snapshot_version, job_id),
             )
         self._conn.commit()
+
+    def mark_cancelled(self, job_id: str) -> JobRecord | None:
+        with self._conn.cursor(row_factory=dict_row) as cur:
+            cur.execute(
+                """
+                UPDATE jobs
+                SET status = 'cancelled',
+                    completed_at = NOW()
+                WHERE id = %s AND status IN ('queued', 'running')
+                RETURNING *
+                """,
+                (job_id,),
+            )
+            row = cur.fetchone()
+        self._conn.commit()
+        return _row(row) if row else None
 
     def mark_failed(self, job_id: str, error_code: str, error_detail: str) -> None:
         with self._conn.cursor() as cur:

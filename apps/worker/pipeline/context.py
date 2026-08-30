@@ -49,6 +49,7 @@ class PipelineContext:
     warnings: list[WarningDto] = field(default_factory=list)
     logger: Any = field(default_factory=lambda: get_logger("pipeline"))
     block_meta: dict[str, dict[str, Any]] = field(default_factory=dict)
+    model_checkpoint_uris: dict[str, str] = field(default_factory=dict)
     worker_id: str | None = None
     current_stage: str | None = None
 

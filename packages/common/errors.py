@@ -13,6 +13,7 @@ HTTP_STATUS: dict[ErrorCode, int] = {
     ErrorCode.JOB_NOT_FOUND: 404,
     ErrorCode.JOB_NOT_READY: 409,
     ErrorCode.JOB_FAILED: 409,
+    ErrorCode.JOB_NOT_CANCELLABLE: 409,
     ErrorCode.LAYOUT_NOT_FOUND: 404,
     ErrorCode.LAYOUT_REVISION_CONFLICT: 409,
     ErrorCode.INVALID_FEEDBACK_ACTION: 400,
@@ -81,6 +82,14 @@ class JobNotReadyError(AppError):
 class JobFailedError(AppError):
     def __init__(self, job_id: str, detail: str) -> None:
         super().__init__(ErrorCode.JOB_FAILED, f"Job {job_id} failed: {detail}")
+
+
+class JobNotCancellableError(AppError):
+    def __init__(self, job_id: str, status: str) -> None:
+        super().__init__(
+            ErrorCode.JOB_NOT_CANCELLABLE,
+            f"Job {job_id} cannot be cancelled (status={status})",
+        )
 
 
 class LayoutNotFoundError(AppError):

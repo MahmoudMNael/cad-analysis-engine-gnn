@@ -34,6 +34,13 @@ services:
       CAD_DATABASE_URL: postgresql://cad:cad@postgres:5432/cad
       CAD_REDIS_URL: redis://redis:6379/0
       CAD_OBJECT_STORE_DIR: /object-storage
+      CAD_FRONTEND_TRAINER_BASE_URL: ${CAD_FRONTEND_TRAINER_BASE_URL:-}
+      CAD_SMTP_HOST: ${CAD_SMTP_HOST:-}
+      CAD_SMTP_PORT: ${CAD_SMTP_PORT:-587}
+      CAD_SMTP_USER: ${CAD_SMTP_USER:-}
+      CAD_SMTP_PASSWORD: ${CAD_SMTP_PASSWORD:-}
+      CAD_SMTP_FROM: ${CAD_SMTP_FROM:-}
+      CAD_SMTP_USE_TLS: ${CAD_SMTP_USE_TLS:-true}
     volumes:
       - ..:/app
       - ../object-storage:/object-storage
@@ -54,6 +61,13 @@ services:
       CAD_DATABASE_URL: postgresql://cad:cad@postgres:5432/cad
       CAD_REDIS_URL: redis://redis:6379/0
       CAD_OBJECT_STORE_DIR: /object-storage
+      CAD_FRONTEND_TRAINER_BASE_URL: ${CAD_FRONTEND_TRAINER_BASE_URL:-}
+      CAD_SMTP_HOST: ${CAD_SMTP_HOST:-}
+      CAD_SMTP_PORT: ${CAD_SMTP_PORT:-587}
+      CAD_SMTP_USER: ${CAD_SMTP_USER:-}
+      CAD_SMTP_PASSWORD: ${CAD_SMTP_PASSWORD:-}
+      CAD_SMTP_FROM: ${CAD_SMTP_FROM:-}
+      CAD_SMTP_USE_TLS: ${CAD_SMTP_USE_TLS:-true}
     volumes:
       - ..:/app
       - ../object-storage:/object-storage

@@ -8,7 +8,12 @@ from packages.contracts.dto.feedback import (
 from packages.contracts.dto.health import HealthResponse
 from packages.contracts.dto.jobs import CreateJobFromUrlRequest, JobDto, JobResponse
 from packages.contracts.dto.layout import LayoutDto, LayoutResponse, RoomDto
-from packages.contracts.dto.models import ModelListResponse, TrainRequest
+from packages.contracts.dto.models import (
+    FaceDatasetResponse,
+    ModelImportResponse,
+    ModelListResponse,
+    TrainRequest,
+)
 
 __all__ = [
     "CreateJobFromUrlRequest",
@@ -20,6 +25,8 @@ __all__ = [
     "JobResponse",
     "LayoutDto",
     "LayoutResponse",
+    "FaceDatasetResponse",
+    "ModelImportResponse",
     "ModelListResponse",
     "RoomDto",
     "TrainRequest",

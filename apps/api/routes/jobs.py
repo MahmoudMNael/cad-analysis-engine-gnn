@@ -21,11 +21,15 @@ from packages.common.errors import (
     FileTooLargeError,
     InvalidRequestError,
     JobFailedError,
+    JobNotCancellableError,
     JobNotFoundError,
     JobNotReadyError,
+    QueueError,
     UnsupportedFormatError,
 )
 from packages.common.hashing import configuration_hash, sha256_hex
+from packages.common.logging import get_logger
+from packages.common.mailer import normalize_notify_email
 from packages.contracts.dto.jobs import (
     CreateJobFromUrlRequest,
     JobCreatedDto,
@@ -46,6 +50,7 @@ from packages.store.object_store import ObjectStore
 from packages.store.snapshots import SnapshotStore
 
 router = APIRouter()
+log = get_logger("api.jobs")
 
 
 def _sanitize_filename(name: str | None) -> str:
@@ -97,6 +102,7 @@ def _create_job(
     store: ObjectStore,
     queue: JobQueue,
     engine_sha: str,
+    notify_email: str | None = None,
 ) -> JobCreatedDto:
     _validate_upload(filename, data, settings)
     job_id = str(uuid.uuid4())
@@ -117,6 +123,7 @@ def _create_job(
         model_versions=pinned.as_dict(),
         unit=unit,
         unit_source="explicit" if unit else None,
+        notify_email=notify_email,
     )
     queue.enqueue(job_id)
     return JobCreatedDto(job_id=job_id, status=JobStatus.QUEUED)
@@ -127,6 +134,7 @@ async def create_job(
     file: UploadFile = File(...),
     unit: str | None = Form(default=None),
     consent_training: bool = Form(default=False),
+    email: str | None = Form(default=None),
     settings: Settings = Depends(get_settings),
     jobs: JobRepository = Depends(job_repo),
     models: ModelRegistryRepository = Depends(model_repo),
@@ -146,6 +154,7 @@ async def create_job(
         store=store,
         queue=queue,
         engine_sha=engine_sha,
+        notify_email=normalize_notify_email(email),
     )
     return JobCreatedResponse(success=True, data=created, message="Job queued")
 
@@ -197,6 +206,29 @@ def get_job(
     if job is None:
         raise JobNotFoundError(job_id)
     return JobResponse(success=True, data=_to_job_dto(job, jobs.layout_rev(job_id)), message="")
+
+
+@router.post("/jobs/{job_id}/cancel", response_model=JobResponse)
+def cancel_job(
+    job_id: str,
+    jobs: JobRepository = Depends(job_repo),
+    queue: JobQueue = Depends(get_queue),
+) -> JobResponse:
+    cancelled = jobs.mark_cancelled(job_id)
+    if cancelled is None:
+        job = jobs.get(job_id)
+        if job is None:
+            raise JobNotFoundError(job_id)
+        raise JobNotCancellableError(job_id, job.status)
+    try:
+        queue.remove(job_id)
+    except QueueError:
+        log.exception("queue_remove_failed", extra={"job_id": job_id, "stage": "cancel"})
+    return JobResponse(
+        success=True,
+        data=_to_job_dto(cancelled, jobs.layout_rev(job_id)),
+        message="Job cancelled",
+    )
 
 
 @router.get("/jobs/{job_id}/layout", response_model=LayoutResponse)

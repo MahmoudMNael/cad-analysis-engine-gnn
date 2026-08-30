@@ -8,11 +8,12 @@ CREATE TABLE IF NOT EXISTS schema_migrations (
 CREATE TABLE IF NOT EXISTS jobs (
     id TEXT PRIMARY KEY,
     source_hash TEXT NOT NULL,
-    status TEXT NOT NULL CHECK (status IN ('queued', 'running', 'succeeded', 'failed')),
+    status TEXT NOT NULL CHECK (status IN ('queued', 'running', 'succeeded', 'failed', 'cancelled')),
     source_uri TEXT NOT NULL,
     unit TEXT,
     unit_source TEXT,
     consent_training BOOLEAN NOT NULL DEFAULT FALSE,
+    notify_email TEXT,
     engine_sha TEXT,
     pipeline_version TEXT,
     model_versions_json JSONB NOT NULL DEFAULT '{}'::jsonb,

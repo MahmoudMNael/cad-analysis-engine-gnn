@@ -29,6 +29,12 @@ class JobQueue:
         except redis.RedisError as exc:
             raise QueueError(f"failed to enqueue job: {exc}") from exc
 
+    def remove(self, job_id: str) -> None:
+        try:
+            self._client.lrem(self._key, 0, job_id)
+        except redis.RedisError as exc:
+            raise QueueError(f"failed to remove job: {exc}") from exc
+
     def dequeue(self, timeout: int = 5) -> str | None:
         if timeout >= _SOCKET_TIMEOUT_SECONDS:
             raise ValueError("dequeue timeout must be less than Redis socket timeout")

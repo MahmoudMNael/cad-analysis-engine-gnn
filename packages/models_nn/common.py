@@ -7,6 +7,8 @@ from packages.contracts.enums import DecisionSource, EntityClass, FaceClass, Gap
 
 ENTITY_CLASSES: tuple[str, ...] = tuple(c.value for c in EntityClass)
 FACE_CLASSES: tuple[str, ...] = tuple(c.value for c in FaceClass)
+FACE_CLASS_TO_INDEX: dict[str, int] = {name: i for i, name in enumerate(FACE_CLASSES)}
+INDEX_TO_FACE_CLASS: tuple[str, ...] = FACE_CLASSES
 
 
 def entropy(probs: dict[str, float]) -> float:

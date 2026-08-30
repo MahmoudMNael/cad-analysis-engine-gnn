@@ -8,6 +8,7 @@ REQUIRED_PATHS = {
     "/api/v1/jobs",
     "/api/v1/jobs/from-url",
     "/api/v1/jobs/{job_id}",
+    "/api/v1/jobs/{job_id}/cancel",
     "/api/v1/jobs/{job_id}/layout",
     "/api/v1/jobs/{job_id}/events",
     "/api/v1/jobs/{job_id}/dividers",
@@ -15,6 +16,9 @@ REQUIRED_PATHS = {
     "/api/v1/jobs/{job_id}/faces",
     "/api/v1/models",
     "/api/v1/admin/train",
+    "/api/v1/admin/datasets/face",
+    "/api/v1/admin/datasets/face/kernel.py",
+    "/api/v1/admin/models",
 }
 
 

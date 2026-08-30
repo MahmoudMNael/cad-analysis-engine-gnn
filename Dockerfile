@@ -12,7 +12,12 @@ COPY packages /app/packages
 COPY tests /app/tests
 COPY main.py /app/main.py
 
-RUN pip install -e ".[dev]" \
-    && mkdir -p /object-storage
+RUN --mount=type=cache,target=/root/.cache/pip \
+    pip install --default-timeout=1000 --retries 20 -e ".[dev]" \
+    && pip install --default-timeout=1000 --retries 20 --index-url https://download.pytorch.org/whl/cpu torch
+# 2) tests last (changes often, doesn't force torch reinstall if you split RUN)
+COPY tests /app/tests
+RUN mkdir -p /object-storage
+
 
 EXPOSE 8000

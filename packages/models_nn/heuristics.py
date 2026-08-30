@@ -143,16 +143,29 @@ class HeuristicFaceClassifier:
         compactness = features.get("compactness", 0.0)
         aspect = features.get("aspect_ratio", 1.0)
         doors = features.get("number_of_doors", 0.0)
+        windows = features.get("number_of_windows", 0.0)
         unbounded = features.get("adjacent_unbounded", 0.0)
         texts = features.get("text_overlap", 0.0)
+        perimeter = features.get("perimeter", 0.0)
+        wall_overlap = features.get("wall_overlap", 0.0)
+        adjacent = features.get("adjacent_face_count", 0.0)
+        wall_density = wall_overlap / max(perimeter, 1e-6)
+        portals = doors + windows
 
         if area < settings.cavity_area_m2:
             scores[FaceClass.CAVITY.value] += 4.0
+            if adjacent >= 2:
+                scores[FaceClass.CAVITY.value] += 0.6
         elif area < settings.shaft_area_m2 and aspect > 4.0:
             scores[FaceClass.SHAFT.value] += 3.5
-        elif unbounded >= 1.0 and area > settings.outdoor_area_m2 and doors < 1 and compactness < 0.2:
+        elif (
+            unbounded >= 1.0
+            and area > settings.outdoor_area_m2
+            and portals < 1
+            and (compactness < 0.2 or wall_density < 0.08)
+        ):
             scores[FaceClass.OUTDOOR.value] += 3.5
-        elif doors >= 2 and aspect > 3.0 and compactness < 0.45:
+        elif portals >= 2 and aspect > 3.0 and compactness < 0.45:
             scores[FaceClass.CORRIDOR.value] += 3.0
         else:
             scores[FaceClass.INDOOR.value] += 3.0
@@ -160,6 +173,10 @@ class HeuristicFaceClassifier:
                 scores[FaceClass.INDOOR.value] += 0.8
             if compactness > 0.3:
                 scores[FaceClass.INDOOR.value] += 0.5
+            if wall_density > 0.2:
+                scores[FaceClass.INDOOR.value] += 0.4
+            if adjacent >= 1 and unbounded < 1:
+                scores[FaceClass.INDOOR.value] += 0.4
 
         probs = softmax(scores)
         predicted = max(probs, key=probs.get)

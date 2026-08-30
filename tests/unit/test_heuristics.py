@@ -45,3 +45,23 @@ def test_face_heuristic_same_shape_as_gnn():
     assert "indoor" in score.probabilities
     assert score.decision_source.value == "heuristic"
     assert score.explanation
+
+
+def test_face_heuristic_cavity_from_area():
+    score = HeuristicFaceClassifier().predict(
+        "c1",
+        {
+            "area": 0.3,
+            "perimeter": 2.4,
+            "compactness": 0.6,
+            "aspect_ratio": 1.0,
+            "number_of_doors": 0.0,
+            "adjacent_unbounded": 0.0,
+            "text_overlap": 0.0,
+            "wall_overlap": 0.2,
+        },
+        Settings(),
+    )
+    assert score.predicted_class == "cavity"
+    assert score.decision_source.value == "heuristic"
+

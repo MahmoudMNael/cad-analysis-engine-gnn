@@ -27,6 +27,7 @@ from packages.ingest.dxf_loader import build_document
 from packages.ingest.models import Document, Primitive
 from packages.models_nn.common import EntityScore, FaceScore, GapScore
 from packages.models_nn.features.entity import ENTITY_FEATURE_SCHEMA_VERSION
+from packages.models_nn.features.face import build_face_adjacency
 from packages.models_nn.features.gap import GAP_FEATURE_SCHEMA_VERSION
 from packages.models_nn.runtime import EntityRuntime, FaceRuntime, GapRuntime
 from packages.primitives.features import extract_entity_features
@@ -160,7 +161,7 @@ def run_pipeline(
     face_ref = context.model_versions.get("face_model_version", "heuristic:face_v1")
     entity_runtime = EntityRuntime(entity_ref)
     gap_runtime = GapRuntime(gap_ref)
-    face_runtime = FaceRuntime(face_ref)
+    face_runtime = FaceRuntime(face_ref, checkpoint_uri=context.model_checkpoint_uris.get("face"))
 
     with context.track_stage("ingest", model_ref="heuristic:ingest_v1", count_in=1) as stage:
         document, ingest_warnings = build_document(
@@ -262,9 +263,18 @@ def run_pipeline(
         stage.count_out = len(face_feature_map)
 
     with context.track_stage("face_classification", model_ref=face_ref, count_in=len(faces.faces)) as stage:
-        face_scores: dict[str, FaceScore] = {}
-        for face in faces.faces:
-            face_scores[face.id] = face_runtime.predict(face.id, face_feature_map[face.id], settings)
+        face_ids = [face.id for face in faces.faces]
+        edge_index, edge_attr = build_face_adjacency(
+            [(face.id, face.geometry, face.area, face.perimeter) for face in faces.faces],
+            [portal.geometry for portal in graph.portals],
+        )
+        face_scores = face_runtime.predict_graph(
+            face_ids,
+            face_feature_map,
+            edge_index,
+            edge_attr,
+            settings,
+        )
         stage.count_out = len(face_scores)
 
     with context.track_stage("room_assembly", model_ref="heuristic:rooms_v1", count_in=len(faces.faces)) as stage:
@@ -315,7 +325,7 @@ def run_pipeline(
     decision_sources = {
         "entity": "heuristic" if entity_ref.startswith("heuristic:") else "model",
         "gap": "heuristic" if gap_ref.startswith("heuristic:") else "model",
-        "face": "heuristic" if face_ref.startswith("heuristic:") else "model",
+        "face": face_runtime.decision_source_name,
     }
     config_hash = context.configuration if isinstance(context.configuration, str) else ""
 

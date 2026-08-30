@@ -6,6 +6,7 @@ from packages.common.configuration import Settings
 from packages.common.errors import AppError
 from packages.common.hashing import configuration_hash, engine_sha_from_sources, sha256_file
 from packages.common.logging import get_logger
+from packages.common.mailer import notify_analysis_completed
 from packages.contracts.enums import ErrorCode
 from packages.store.db.repositories.jobs import JobRepository
 from packages.store.db.repositories.models import ModelRegistryRepository
@@ -18,6 +19,22 @@ from apps.worker.pipeline.runner import run_pipeline
 
 log = get_logger("worker.jobs")
 REPO_ROOT = Path(__file__).resolve().parents[3]
+
+
+def _job_cancelled(jobs: JobRepository, job_id: str, extra_base: dict) -> bool:
+    current = jobs.get(job_id)
+    if current is not None and current.status == "cancelled":
+        log.info("job_cancelled", extra={**extra_base, "stage": "cancel"})
+        return True
+    return False
+
+
+def _notify_if_succeeded(jobs: JobRepository, job_id: str, settings: Settings) -> bool:
+    current = jobs.get(job_id)
+    if current is None or current.status != "succeeded":
+        return False
+    notify_analysis_completed(settings, job_id=job_id, notify_email=current.notify_email)
+    return True
 
 
 def process_job(
@@ -48,6 +65,8 @@ def process_job(
         return
     if job.status == "running" and snapshot_is_complete(job, object_store, artifacts):
         log.info("job_complete_from_snapshot", extra={**extra_base, "stage": "idempotency"})
+        if _job_cancelled(jobs, job_id, extra_base):
+            return
         meta = snapshots.load_meta(job_id)
         jobs.mark_succeeded(
             job_id,
@@ -55,9 +74,13 @@ def process_job(
             unit_source=str(meta.get("unit_source") or "fallback"),
             snapshot_version=1,
         )
+        _notify_if_succeeded(jobs, job_id, settings)
         return
     if job.status == "failed":
         log.info("job_already_failed", extra={**extra_base, "stage": "load_job"})
+        return
+    if job.status == "cancelled":
+        log.info("job_already_cancelled", extra={**extra_base, "stage": "load_job"})
         return
     if job.status == "queued":
         log.info("job_claim", extra={**extra_base, "stage": "claim"})
@@ -83,6 +106,8 @@ def process_job(
         return
 
     pinned = job.model_versions_json or resolve_pinned_models(registry).as_dict()
+    face_version = str(pinned.get("face_model_version") or "heuristic:face_v1")
+    face_checkpoint = registry.checkpoint_uri("face", face_version)
     engine_sha = job.engine_sha or settings.engine_sha_override or engine_sha_from_sources(REPO_ROOT)
     source_key = object_store.key_for_job(job_id, "source.dxf")
     if not object_store.exists(source_key):
@@ -112,6 +137,7 @@ def process_job(
         model_versions=dict(pinned),
         source_hash=job.source_hash or sha256_file(tmp),
         worker_id=worker_id,
+        model_checkpoint_uris={"face": face_checkpoint} if face_checkpoint else {},
     )
     try:
         result = run_pipeline(
@@ -120,6 +146,8 @@ def process_job(
             settings=settings,
             explicit_unit=job.unit,
         )
+        if _job_cancelled(jobs, job_id, extra_base):
+            return
         with context.track_stage("snapshot", model_ref="heuristic:snapshot_v1", count_in=1) as stage:
             snapshots.write(
                 job_id=job_id,
@@ -132,6 +160,8 @@ def process_job(
                 snapshot_version=1,
             )
             stage.count_out = 6
+        if _job_cancelled(jobs, job_id, extra_base):
+            return
         with context.track_stage("persist_success", model_ref="heuristic:persist_v1", count_in=1) as stage:
             jobs.mark_succeeded(
                 job_id,
@@ -140,6 +170,8 @@ def process_job(
                 snapshot_version=1,
             )
             stage.count_out = 1
+        if not _notify_if_succeeded(jobs, job_id, settings):
+            return
         log.info(
             "job_succeeded",
             extra={

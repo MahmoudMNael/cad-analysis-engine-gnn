@@ -6,6 +6,7 @@ import json
 from pathlib import Path
 from typing import Any
 
+from packages.common.logging import get_logger
 from packages.contracts.dto.feedback import FeedbackEventDto
 from packages.contracts.dto.layout import LayoutDto
 from packages.contracts.enums import FeedbackAction, LabelSource
@@ -24,6 +25,8 @@ from packages.store.events import EventStore
 from packages.store.object_store import ObjectStore
 from packages.store.snapshots import SnapshotStore, _parse_json_map
 from packages.views.reducer import reduce_view
+
+log = get_logger("trainer.compile")
 
 
 def compile_job_artifacts(
@@ -232,6 +235,12 @@ def compile_lake(
     merged = CompiledLake(face_cls=[], edge_cls=[], link_pred=[])
     for job in jobs.list_succeeded():
         if require_consent and not job.consent_training:
+            continue
+        if not object_store.snapshot_complete(job.id):
+            log.warning(
+                "compile_skip_incomplete_snapshot",
+                extra={"job_id": job.id, "stage": "compile"},
+            )
             continue
         document = snapshots.load_document(job.id)
         meta = snapshots.load_meta(job.id)
