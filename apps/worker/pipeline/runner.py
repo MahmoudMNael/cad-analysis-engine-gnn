@@ -3,11 +3,16 @@
 from __future__ import annotations
 
 import json
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from packages.assemble.face_features import extract_face_features, feature_schema_version
+from packages.assemble.face_features import (
+    build_face_feature_index,
+    extract_face_features,
+    feature_schema_version,
+)
 from packages.assemble.layout import build_layout_dto
 from packages.assemble.measurements import collect_measurements
 from packages.assemble.objects import assemble_objects
@@ -22,6 +27,7 @@ from packages.contracts.enums import EntityClass, WarningCode, WarningSeverity
 from packages.contracts.dto.common import WarningDto
 from packages.graphkit.candidates import generate_gap_candidates
 from packages.graphkit.graph_builder import build_plan_graph, close_graph
+from packages.graphkit.models import PlanGraph
 from packages.graphkit.portals import detect_portals
 from packages.ingest.dxf_loader import build_document
 from packages.ingest.models import Document, Primitive
@@ -32,6 +38,7 @@ from packages.models_nn.features.gap import GAP_FEATURE_SCHEMA_VERSION
 from packages.models_nn.runtime import EntityRuntime, FaceRuntime, GapRuntime
 from packages.primitives.features import extract_entity_features
 from packages.primitives.models import primitive_set_from_document
+from packages.primitives.spatial_index import PrimitiveIndexes
 from packages.views.reducer import reduce_view
 from apps.worker.pipeline.context import PipelineContext
 
@@ -149,6 +156,42 @@ def serialize_plan_graph(
     }
 
 
+def _classify_primitive(
+    prim: Primitive,
+    by_id: dict[str, Primitive],
+    indexes: PrimitiveIndexes,
+    entity_runtime: EntityRuntime,
+    settings: Settings,
+) -> tuple[str, EntityScore]:
+    feats = extract_entity_features(
+        prim,
+        by_id,
+        indexes,
+        include_neighbors=entity_runtime.requires_neighbor_features,
+    )
+    return prim.id, entity_runtime.predict(prim, feats, settings)
+
+
+def classify_entities(
+    primitives: tuple[Primitive, ...],
+    by_id: dict[str, Primitive],
+    indexes: PrimitiveIndexes,
+    entity_runtime: EntityRuntime,
+    settings: Settings,
+) -> dict[str, EntityScore]:
+    workers = max(1, int(settings.entity_classify_workers or 1))
+    if not entity_runtime.requires_neighbor_features or workers <= 1 or len(primitives) < 2:
+        return dict(
+            _classify_primitive(prim, by_id, indexes, entity_runtime, settings) for prim in primitives
+        )
+
+    def _one(prim: Primitive) -> tuple[str, EntityScore]:
+        return _classify_primitive(prim, by_id, indexes, entity_runtime, settings)
+
+    with ThreadPoolExecutor(max_workers=workers) as pool:
+        return dict(pool.map(_one, primitives))
+
+
 def run_pipeline(
     *,
     source_path: Path,
@@ -184,10 +227,9 @@ def run_pipeline(
         model_ref=entity_ref,
         count_in=len(document.primitives),
     ) as stage:
-        entity_scores: dict[str, EntityScore] = {}
-        for prim in document.primitives:
-            feats = extract_entity_features(prim, by_id, primitive_set.indexes)
-            entity_scores[prim.id] = entity_runtime.predict(prim, feats, settings)
+        entity_scores = classify_entities(
+            document.primitives, by_id, primitive_set.indexes, entity_runtime, settings
+        )
         stage.count_out = len(entity_scores)
 
     with context.track_stage(
@@ -256,9 +298,10 @@ def run_pipeline(
         count_in=len(faces.faces),
     ) as stage:
         face_feature_map: dict[str, dict[str, float]] = {}
+        feature_index = build_face_feature_index(faces, graph, texts_prims, wall_prims)
         for face in faces.faces:
             face_feature_map[face.id] = extract_face_features(
-                face, faces, graph, graph.portals, texts_prims, wall_prims
+                face, faces, graph, graph.portals, texts_prims, wall_prims, index=feature_index
             )
         stage.count_out = len(face_feature_map)
 
@@ -360,48 +403,54 @@ def run_pipeline(
         LayoutDto.model_validate(layout.model_dump())
         stage.count_out = len(layout.rooms)
 
-    faces_rows: dict[str, list[Any]] = {
-        "face_id": [],
-        "wkt": [],
-        "area": [],
-        "perimeter": [],
-        "predicted_class": [],
-        "confidence": [],
-        "entropy": [],
-        "decision_source": [],
-        "explanation": [],
-        "accepted_as_room": [],
-        "repaired": [],
-        "discarded_reason": [],
-        "valid": [],
-        "probabilities": [],
-        "features": [],
-    }
-    room_ids = {r.id for r in rooms}
-    for face in faces.faces:
-        score = face_scores[face.id]
-        faces_rows["face_id"].append(face.id)
-        faces_rows["wkt"].append(face.geometry.wkt)
-        faces_rows["area"].append(face.area)
-        faces_rows["perimeter"].append(face.perimeter)
-        faces_rows["predicted_class"].append(score.predicted_class)
-        faces_rows["confidence"].append(score.confidence)
-        faces_rows["entropy"].append(score.entropy)
-        faces_rows["decision_source"].append(score.decision_source.value)
-        faces_rows["explanation"].append(score.explanation)
-        faces_rows["accepted_as_room"].append(face.id in room_ids)
-        faces_rows["repaired"].append(face.repaired)
-        faces_rows["discarded_reason"].append(face.discarded_reason)
-        faces_rows["valid"].append(face.valid)
-        faces_rows["probabilities"].append(json.dumps(score.probabilities, sort_keys=True))
-        faces_rows["features"].append(json.dumps(face_feature_map[face.id], sort_keys=True))
+    with context.track_stage(
+        "serialization",
+        model_ref="heuristic:serialize_v1",
+        count_in=len(faces.faces),
+    ) as stage:
+        faces_rows: dict[str, list[Any]] = {
+            "face_id": [],
+            "wkt": [],
+            "area": [],
+            "perimeter": [],
+            "predicted_class": [],
+            "confidence": [],
+            "entropy": [],
+            "decision_source": [],
+            "explanation": [],
+            "accepted_as_room": [],
+            "repaired": [],
+            "discarded_reason": [],
+            "valid": [],
+            "probabilities": [],
+            "features": [],
+        }
+        room_ids = {r.id for r in rooms}
+        for face in faces.faces:
+            score = face_scores[face.id]
+            faces_rows["face_id"].append(face.id)
+            faces_rows["wkt"].append(face.geometry.wkt)
+            faces_rows["area"].append(face.area)
+            faces_rows["perimeter"].append(face.perimeter)
+            faces_rows["predicted_class"].append(score.predicted_class)
+            faces_rows["confidence"].append(score.confidence)
+            faces_rows["entropy"].append(score.entropy)
+            faces_rows["decision_source"].append(score.decision_source.value)
+            faces_rows["explanation"].append(score.explanation)
+            faces_rows["accepted_as_room"].append(face.id in room_ids)
+            faces_rows["repaired"].append(face.repaired)
+            faces_rows["discarded_reason"].append(face.discarded_reason)
+            faces_rows["valid"].append(face.valid)
+            faces_rows["probabilities"].append(json.dumps(score.probabilities, sort_keys=True))
+            faces_rows["features"].append(json.dumps(face_feature_map[face.id], sort_keys=True))
 
-    document_payload = serialize_document(document)
-    document_payload["measurements"] = [
-        {"id": m.id, "layer": m.layer, "source_entity_type": m.source_entity_type, "content": m.content}
-        for m in measurements
-    ]
-    plan_graph_payload = serialize_plan_graph(graph, entity_scores, gap_scores)
+        document_payload = serialize_document(document)
+        document_payload["measurements"] = [
+            {"id": m.id, "layer": m.layer, "source_entity_type": m.source_entity_type, "content": m.content}
+            for m in measurements
+        ]
+        plan_graph_payload = serialize_plan_graph(graph, entity_scores, gap_scores)
+        stage.count_out = len(faces_rows["face_id"])
     meta = {
         "job_id": context.job_id,
         "source_hash": context.source_hash,

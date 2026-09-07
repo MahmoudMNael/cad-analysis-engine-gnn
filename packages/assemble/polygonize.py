@@ -16,6 +16,7 @@ from packages.common.geometry import (
     repair_polygon,
 )
 from packages.common.hashing import stable_hash
+from packages.common.spatial_index import SpatialIndex, expand_bounds
 from packages.graphkit.models import PlanGraph
 
 
@@ -58,6 +59,9 @@ def polygonize_graph(graph: PlanGraph, settings: Settings) -> tuple[FaceSet, lis
 
     geoms = list(polygons.geoms) if polygons.geom_type == "GeometryCollection" else [polygons]
     edge_uses: dict[str, int] = {e.id: 0 for e in graph.edges}
+    edge_map = {e.id: e for e in graph.edges}
+    edge_index = SpatialIndex.build([(e.id, e.geometry) for e in graph.edges])
+    tol5 = settings.intersection_tolerance_m * 5
     faces: list[Face] = []
     for geom in geoms:
         if geom.is_empty or geom.geom_type != "Polygon":
@@ -91,9 +95,11 @@ def polygonize_graph(graph: PlanGraph, settings: Settings) -> tuple[FaceSet, lis
                 metadata={"compactness": compactness(float(part.area), float(part.length))},
             )
             faces.append(face)
-            for edge in graph.edges:
-                if edge.geometry.intersects(part.boundary.buffer(settings.intersection_tolerance_m * 5)):
-                    if edge.geometry.distance(part) <= settings.intersection_tolerance_m * 5:
+            boundary_buf = part.boundary.buffer(tol5)
+            for eid in edge_index.query(expand_bounds(part.boundary, tol5)):
+                edge = edge_map[eid]
+                if edge.geometry.intersects(boundary_buf):
+                    if edge.geometry.distance(part) <= tol5:
                         edge_uses[edge.id] = edge_uses.get(edge.id, 0) + 1
     unique: dict[str, Face] = {}
     for face in faces:

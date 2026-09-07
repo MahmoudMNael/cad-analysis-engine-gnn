@@ -1,0 +1,379 @@
+{
+  "document_sha256": "9da46ada555d7556de7e5d4fd186701aeab84ebf1cac8b9a1efe03c32f2622d3",
+  "faces": {
+    "accepted_as_room": [
+      true,
+      true
+    ],
+    "face_id": [
+      "515d6662ef09902857cfb21e554e8e095440f75a7b565471f415165fee407f87",
+      "5f7f61678739e79490c7bb362b2ef67e4ee88ffc41fdff2a555a35d68c6cc125"
+    ],
+    "features": [
+      "{\"adjacent_face_count\": 1.0, \"adjacent_unbounded\": 1.0, \"area\": 96.0, \"aspect_ratio\": 1.0, \"bbox_maxx\": 10.0, \"bbox_maxy\": 10.0, \"bbox_minx\": 0.0, \"bbox_miny\": 0.0, \"boundary_complexity\": 5.0, \"centroid_x\": 5.041666666666667, \"centroid_y\": 5.041666666666667, \"compactness\": 0.5235987755982988, \"feature_schema\": 1.0, \"number_of_doors\": 0.0, \"number_of_windows\": 0.0, \"perimeter\": 48.0, \"schema_marker\": 1.0, \"text_overlap\": 0.0, \"wall_overlap\": 48.0}",
+      "{\"adjacent_face_count\": 1.0, \"adjacent_unbounded\": 0.0, \"area\": 4.0, \"aspect_ratio\": 1.0, \"bbox_maxx\": 5.0, \"bbox_maxy\": 5.0, \"bbox_minx\": 3.0, \"bbox_miny\": 3.0, \"boundary_complexity\": 5.0, \"centroid_x\": 4.0, \"centroid_y\": 4.0, \"compactness\": 0.7853981633974483, \"feature_schema\": 1.0, \"number_of_doors\": 0.0, \"number_of_windows\": 0.0, \"perimeter\": 8.0, \"schema_marker\": 1.0, \"text_overlap\": 0.0, \"wall_overlap\": 8.0}"
+    ],
+    "predicted_class": [
+      "indoor",
+      "indoor"
+    ]
+  },
+  "layout": {
+    "doors": [],
+    "lights": [],
+    "meta": {
+      "configuration_hash": "657b4f3c5e7156fed7c5d0ab191f92dd76275b07c94fd007a58219a827245d2e",
+      "feature_schema_versions": {
+        "entity": "entity_features_v1",
+        "face": "face_features_v1",
+        "gap": "gap_features_v1"
+      },
+      "layout_rev": 0,
+      "layout_schema": "layout.v1",
+      "model_decision_sources": {
+        "entity": "heuristic",
+        "face": "heuristic",
+        "gap": "heuristic"
+      },
+      "model_versions": {
+        "entity_model_version": "heuristic:entity_v1",
+        "face_model_version": "heuristic:face_v1",
+        "gap_model_version": "heuristic:gap_v1"
+      },
+      "pipeline_version": "1.0.0",
+      "scale_factor": 0.001,
+      "unit": "m",
+      "unit_source": "cad_metadata"
+    },
+    "objects": [],
+    "physical_rooms": [
+      {
+        "area_gross_m2": 96.0,
+        "area_m2": 96.0,
+        "area_net_m2": 96.0,
+        "bbox": {
+          "max_x": 10.0,
+          "max_y": 10.0,
+          "min_x": 0.0,
+          "min_y": 0.0
+        },
+        "boundary": [
+          {
+            "x": 10.0,
+            "y": 0.0
+          },
+          {
+            "x": 0.0,
+            "y": 0.0
+          },
+          {
+            "x": 0.0,
+            "y": 10.0
+          },
+          {
+            "x": 10.0,
+            "y": 10.0
+          }
+        ],
+        "center": {
+          "x": 5.041666666666667,
+          "y": 5.041666666666667
+        },
+        "confidence": 0.9250970682618791,
+        "dimensions": {
+          "length_m": 10.0,
+          "width_m": 10.0
+        },
+        "door_ids": [],
+        "id": "515d6662ef09902857cfb21e554e8e095440f75a7b565471f415165fee407f87",
+        "kind": "indoor",
+        "name": null,
+        "neighbor_ids": [
+          "5f7f61678739e79490c7bb362b2ef67e4ee88ffc41fdff2a555a35d68c6cc125"
+        ],
+        "object_ids": [],
+        "parent_room_id": null,
+        "perimeter_m": 48.0,
+        "physical_room_id": "515d6662ef09902857cfb21e554e8e095440f75a7b565471f415165fee407f87",
+        "selectable": true,
+        "window_ids": []
+      },
+      {
+        "area_gross_m2": 4.0,
+        "area_m2": 4.0,
+        "area_net_m2": 4.0,
+        "bbox": {
+          "max_x": 5.0,
+          "max_y": 5.0,
+          "min_x": 3.0,
+          "min_y": 3.0
+        },
+        "boundary": [
+          {
+            "x": 5.0,
+            "y": 3.0
+          },
+          {
+            "x": 3.0,
+            "y": 3.0
+          },
+          {
+            "x": 3.0,
+            "y": 5.0
+          },
+          {
+            "x": 5.0,
+            "y": 5.0
+          }
+        ],
+        "center": {
+          "x": 4.0,
+          "y": 4.0
+        },
+        "confidence": 0.9485198118354745,
+        "dimensions": {
+          "length_m": 2.0,
+          "width_m": 2.0
+        },
+        "door_ids": [],
+        "id": "5f7f61678739e79490c7bb362b2ef67e4ee88ffc41fdff2a555a35d68c6cc125",
+        "kind": "indoor",
+        "name": null,
+        "neighbor_ids": [
+          "515d6662ef09902857cfb21e554e8e095440f75a7b565471f415165fee407f87"
+        ],
+        "object_ids": [],
+        "parent_room_id": null,
+        "perimeter_m": 8.0,
+        "physical_room_id": "5f7f61678739e79490c7bb362b2ef67e4ee88ffc41fdff2a555a35d68c6cc125",
+        "selectable": true,
+        "window_ids": []
+      }
+    ],
+    "rooms": [
+      {
+        "area_gross_m2": 96.0,
+        "area_m2": 96.0,
+        "area_net_m2": 96.0,
+        "bbox": {
+          "max_x": 10.0,
+          "max_y": 10.0,
+          "min_x": 0.0,
+          "min_y": 0.0
+        },
+        "boundary": [
+          {
+            "x": 10.0,
+            "y": 0.0
+          },
+          {
+            "x": 0.0,
+            "y": 0.0
+          },
+          {
+            "x": 0.0,
+            "y": 10.0
+          },
+          {
+            "x": 10.0,
+            "y": 10.0
+          }
+        ],
+        "center": {
+          "x": 5.041666666666667,
+          "y": 5.041666666666667
+        },
+        "confidence": 0.9250970682618791,
+        "dimensions": {
+          "length_m": 10.0,
+          "width_m": 10.0
+        },
+        "door_ids": [],
+        "id": "515d6662ef09902857cfb21e554e8e095440f75a7b565471f415165fee407f87",
+        "kind": "indoor",
+        "name": null,
+        "neighbor_ids": [],
+        "object_ids": [],
+        "parent_room_id": null,
+        "perimeter_m": 48.0,
+        "physical_room_id": "515d6662ef09902857cfb21e554e8e095440f75a7b565471f415165fee407f87",
+        "selectable": true,
+        "window_ids": []
+      },
+      {
+        "area_gross_m2": 4.0,
+        "area_m2": 4.0,
+        "area_net_m2": 4.0,
+        "bbox": {
+          "max_x": 5.0,
+          "max_y": 5.0,
+          "min_x": 3.0,
+          "min_y": 3.0
+        },
+        "boundary": [
+          {
+            "x": 5.0,
+            "y": 3.0
+          },
+          {
+            "x": 3.0,
+            "y": 3.0
+          },
+          {
+            "x": 3.0,
+            "y": 5.0
+          },
+          {
+            "x": 5.0,
+            "y": 5.0
+          }
+        ],
+        "center": {
+          "x": 4.0,
+          "y": 4.0
+        },
+        "confidence": 0.9485198118354745,
+        "dimensions": {
+          "length_m": 2.0,
+          "width_m": 2.0
+        },
+        "door_ids": [],
+        "id": "5f7f61678739e79490c7bb362b2ef67e4ee88ffc41fdff2a555a35d68c6cc125",
+        "kind": "indoor",
+        "name": null,
+        "neighbor_ids": [],
+        "object_ids": [],
+        "parent_room_id": null,
+        "perimeter_m": 8.0,
+        "physical_room_id": "5f7f61678739e79490c7bb362b2ef67e4ee88ffc41fdff2a555a35d68c6cc125",
+        "selectable": true,
+        "window_ids": []
+      }
+    ],
+    "texts": [],
+    "unassigned_objects": [],
+    "unit": "m",
+    "virtual_dividers": [],
+    "walls": [
+      {
+        "confidence": 0.997991267360964,
+        "end": {
+          "x": 10.0,
+          "y": 0.0
+        },
+        "id": "2b689fb346b72d12b7f9edf60fd6e452c36332bc536b56e8d31b7ca4ff6a8ae5",
+        "predicted_class": "wall",
+        "primitive_ids": [],
+        "start": {
+          "x": 0.0,
+          "y": 0.0
+        }
+      },
+      {
+        "confidence": 0.997991267360964,
+        "end": {
+          "x": 10.0,
+          "y": 10.0
+        },
+        "id": "372239fd9694895acd913b3bc291180b06fc4525ffd6c2f32c4beac33c4e3387",
+        "predicted_class": "wall",
+        "primitive_ids": [],
+        "start": {
+          "x": 10.0,
+          "y": 0.0
+        }
+      },
+      {
+        "confidence": 0.997991267360964,
+        "end": {
+          "x": 10.0,
+          "y": 10.0
+        },
+        "id": "7846dc3b47f746c85142e78995516ff325760953b4874e00fe17326049625ec2",
+        "predicted_class": "wall",
+        "primitive_ids": [],
+        "start": {
+          "x": 0.0,
+          "y": 10.0
+        }
+      },
+      {
+        "confidence": 0.997991267360964,
+        "end": {
+          "x": 0.0,
+          "y": 10.0
+        },
+        "id": "b504a370844f7f11ea6043467f6ae95ccef0476ee2b105bb1a95cbfd9a6e45c8",
+        "predicted_class": "wall",
+        "primitive_ids": [],
+        "start": {
+          "x": 0.0,
+          "y": 0.0
+        }
+      },
+      {
+        "confidence": 0.997991267360964,
+        "end": {
+          "x": 5.0,
+          "y": 3.0
+        },
+        "id": "10cb545f2c22cfb133c7ddf3d160eab94caebec4a8e0ad0349bb6d81d6ba6f86",
+        "predicted_class": "wall",
+        "primitive_ids": [],
+        "start": {
+          "x": 3.0,
+          "y": 3.0
+        }
+      },
+      {
+        "confidence": 0.997991267360964,
+        "end": {
+          "x": 5.0,
+          "y": 5.0
+        },
+        "id": "46028deac89a80e86771e5bdbf0ea0cf5b48726b95ec61aa979bb70bde5aa80f",
+        "predicted_class": "wall",
+        "primitive_ids": [],
+        "start": {
+          "x": 5.0,
+          "y": 3.0
+        }
+      },
+      {
+        "confidence": 0.997991267360964,
+        "end": {
+          "x": 5.0,
+          "y": 5.0
+        },
+        "id": "abe250a21df330506a1f168485c44898228ed0844a7e183b3d32420eb5998017",
+        "predicted_class": "wall",
+        "primitive_ids": [],
+        "start": {
+          "x": 3.0,
+          "y": 5.0
+        }
+      },
+      {
+        "confidence": 0.997991267360964,
+        "end": {
+          "x": 3.0,
+          "y": 5.0
+        },
+        "id": "bfdfa41cb8bdc8df47b0dd994a7d378c7ab5a7ef427ff4313e436749af356441",
+        "predicted_class": "wall",
+        "primitive_ids": [],
+        "start": {
+          "x": 3.0,
+          "y": 3.0
+        }
+      }
+    ],
+    "warnings": [],
+    "windows": []
+  },
+  "plan_graph_sha256": "645f0c5245488e296be04416ee4cf8312cdd9ec94e8d1de4b4bddd84fc316879",
+  "primitive_kinds": [
+    "lwpolyline",
+    "lwpolyline"
+  ]
+}

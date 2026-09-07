@@ -1,0 +1,668 @@
+{
+  "document_sha256": "dc7ed7b4af08d6cefe306d2ce8d436c68aa766571f58c2eb00ec3fd590cf4113",
+  "faces": {
+    "accepted_as_room": [
+      true,
+      true,
+      true,
+      true
+    ],
+    "face_id": [
+      "432f227475dde357a5c5c11ed97b9b22fd1d0e0bcb93b4ba8f99250ac078a238",
+      "00e6794c836689f46d9d6b81df35aeb072f5df6e801ddd9e693c93e1cd810d09",
+      "2418ad273ed8e30b192b160ec5b396565745c88f486764cf2eb88bbde28618fb",
+      "7373d57d1e56892cbce545cbb26ae257166a46ba57dc7fca2dc846287c6fdabf"
+    ],
+    "features": [
+      "{\"adjacent_face_count\": 3.0, \"adjacent_unbounded\": 0.0, \"area\": 16.0, \"aspect_ratio\": 1.0, \"bbox_maxx\": 4.0, \"bbox_maxy\": 4.0, \"bbox_minx\": 0.0, \"bbox_miny\": 0.0, \"boundary_complexity\": 5.0, \"centroid_x\": 2.0, \"centroid_y\": 2.0, \"compactness\": 0.7853981633974483, \"feature_schema\": 1.0, \"number_of_doors\": 0.0, \"number_of_windows\": 0.0, \"perimeter\": 16.0, \"schema_marker\": 1.0, \"text_overlap\": 0.0, \"wall_overlap\": 16.2}",
+      "{\"adjacent_face_count\": 3.0, \"adjacent_unbounded\": 0.0, \"area\": 16.0, \"aspect_ratio\": 1.0, \"bbox_maxx\": 8.0, \"bbox_maxy\": 4.0, \"bbox_minx\": 4.0, \"bbox_miny\": 0.0, \"boundary_complexity\": 5.0, \"centroid_x\": 6.0, \"centroid_y\": 2.0, \"compactness\": 0.7853981633974483, \"feature_schema\": 1.0, \"number_of_doors\": 0.0, \"number_of_windows\": 0.0, \"perimeter\": 16.0, \"schema_marker\": 1.0, \"text_overlap\": 0.0, \"wall_overlap\": 16.2}",
+      "{\"adjacent_face_count\": 3.0, \"adjacent_unbounded\": 0.0, \"area\": 16.0, \"aspect_ratio\": 1.0, \"bbox_maxx\": 8.0, \"bbox_maxy\": 8.0, \"bbox_minx\": 4.0, \"bbox_miny\": 4.0, \"boundary_complexity\": 5.0, \"centroid_x\": 6.0, \"centroid_y\": 6.0, \"compactness\": 0.7853981633974483, \"feature_schema\": 1.0, \"number_of_doors\": 0.0, \"number_of_windows\": 0.0, \"perimeter\": 16.0, \"schema_marker\": 1.0, \"text_overlap\": 0.0, \"wall_overlap\": 16.2}",
+      "{\"adjacent_face_count\": 3.0, \"adjacent_unbounded\": 0.0, \"area\": 16.0, \"aspect_ratio\": 1.0, \"bbox_maxx\": 4.0, \"bbox_maxy\": 8.0, \"bbox_minx\": 0.0, \"bbox_miny\": 4.0, \"boundary_complexity\": 5.0, \"centroid_x\": 2.0, \"centroid_y\": 6.0, \"compactness\": 0.7853981633974483, \"feature_schema\": 1.0, \"number_of_doors\": 0.0, \"number_of_windows\": 0.0, \"perimeter\": 16.0, \"schema_marker\": 1.0, \"text_overlap\": 0.0, \"wall_overlap\": 16.2}"
+    ],
+    "predicted_class": [
+      "indoor",
+      "indoor",
+      "indoor",
+      "indoor"
+    ]
+  },
+  "layout": {
+    "doors": [],
+    "lights": [],
+    "meta": {
+      "configuration_hash": "657b4f3c5e7156fed7c5d0ab191f92dd76275b07c94fd007a58219a827245d2e",
+      "feature_schema_versions": {
+        "entity": "entity_features_v1",
+        "face": "face_features_v1",
+        "gap": "gap_features_v1"
+      },
+      "layout_rev": 0,
+      "layout_schema": "layout.v1",
+      "model_decision_sources": {
+        "entity": "heuristic",
+        "face": "heuristic",
+        "gap": "heuristic"
+      },
+      "model_versions": {
+        "entity_model_version": "heuristic:entity_v1",
+        "face_model_version": "heuristic:face_v1",
+        "gap_model_version": "heuristic:gap_v1"
+      },
+      "pipeline_version": "1.0.0",
+      "scale_factor": 0.001,
+      "unit": "m",
+      "unit_source": "cad_metadata"
+    },
+    "objects": [],
+    "physical_rooms": [
+      {
+        "area_gross_m2": 16.0,
+        "area_m2": 16.0,
+        "area_net_m2": 16.0,
+        "bbox": {
+          "max_x": 4.0,
+          "max_y": 4.0,
+          "min_x": 0.0,
+          "min_y": 0.0
+        },
+        "boundary": [
+          {
+            "x": 4.0,
+            "y": 0.0
+          },
+          {
+            "x": 0.0,
+            "y": 0.0
+          },
+          {
+            "x": 0.0,
+            "y": 4.0
+          },
+          {
+            "x": 4.0,
+            "y": 4.0
+          }
+        ],
+        "center": {
+          "x": 2.0,
+          "y": 2.0
+        },
+        "confidence": 0.9485198118354745,
+        "dimensions": {
+          "length_m": 4.0,
+          "width_m": 4.0
+        },
+        "door_ids": [],
+        "id": "432f227475dde357a5c5c11ed97b9b22fd1d0e0bcb93b4ba8f99250ac078a238",
+        "kind": "indoor",
+        "name": null,
+        "neighbor_ids": [
+          "00e6794c836689f46d9d6b81df35aeb072f5df6e801ddd9e693c93e1cd810d09",
+          "2418ad273ed8e30b192b160ec5b396565745c88f486764cf2eb88bbde28618fb",
+          "7373d57d1e56892cbce545cbb26ae257166a46ba57dc7fca2dc846287c6fdabf"
+        ],
+        "object_ids": [],
+        "parent_room_id": null,
+        "perimeter_m": 16.0,
+        "physical_room_id": "432f227475dde357a5c5c11ed97b9b22fd1d0e0bcb93b4ba8f99250ac078a238",
+        "selectable": true,
+        "window_ids": []
+      },
+      {
+        "area_gross_m2": 16.0,
+        "area_m2": 16.0,
+        "area_net_m2": 16.0,
+        "bbox": {
+          "max_x": 8.0,
+          "max_y": 4.0,
+          "min_x": 4.0,
+          "min_y": 0.0
+        },
+        "boundary": [
+          {
+            "x": 8.0,
+            "y": 0.0
+          },
+          {
+            "x": 4.0,
+            "y": 0.0
+          },
+          {
+            "x": 4.0,
+            "y": 4.0
+          },
+          {
+            "x": 8.0,
+            "y": 4.0
+          }
+        ],
+        "center": {
+          "x": 6.0,
+          "y": 2.0
+        },
+        "confidence": 0.9485198118354745,
+        "dimensions": {
+          "length_m": 4.0,
+          "width_m": 4.0
+        },
+        "door_ids": [],
+        "id": "00e6794c836689f46d9d6b81df35aeb072f5df6e801ddd9e693c93e1cd810d09",
+        "kind": "indoor",
+        "name": null,
+        "neighbor_ids": [
+          "2418ad273ed8e30b192b160ec5b396565745c88f486764cf2eb88bbde28618fb",
+          "432f227475dde357a5c5c11ed97b9b22fd1d0e0bcb93b4ba8f99250ac078a238",
+          "7373d57d1e56892cbce545cbb26ae257166a46ba57dc7fca2dc846287c6fdabf"
+        ],
+        "object_ids": [],
+        "parent_room_id": null,
+        "perimeter_m": 16.0,
+        "physical_room_id": "00e6794c836689f46d9d6b81df35aeb072f5df6e801ddd9e693c93e1cd810d09",
+        "selectable": true,
+        "window_ids": []
+      },
+      {
+        "area_gross_m2": 16.0,
+        "area_m2": 16.0,
+        "area_net_m2": 16.0,
+        "bbox": {
+          "max_x": 8.0,
+          "max_y": 8.0,
+          "min_x": 4.0,
+          "min_y": 4.0
+        },
+        "boundary": [
+          {
+            "x": 8.0,
+            "y": 8.0
+          },
+          {
+            "x": 8.0,
+            "y": 4.0
+          },
+          {
+            "x": 4.0,
+            "y": 4.0
+          },
+          {
+            "x": 4.0,
+            "y": 8.0
+          }
+        ],
+        "center": {
+          "x": 6.0,
+          "y": 6.0
+        },
+        "confidence": 0.9485198118354745,
+        "dimensions": {
+          "length_m": 4.0,
+          "width_m": 4.0
+        },
+        "door_ids": [],
+        "id": "2418ad273ed8e30b192b160ec5b396565745c88f486764cf2eb88bbde28618fb",
+        "kind": "indoor",
+        "name": null,
+        "neighbor_ids": [
+          "00e6794c836689f46d9d6b81df35aeb072f5df6e801ddd9e693c93e1cd810d09",
+          "432f227475dde357a5c5c11ed97b9b22fd1d0e0bcb93b4ba8f99250ac078a238",
+          "7373d57d1e56892cbce545cbb26ae257166a46ba57dc7fca2dc846287c6fdabf"
+        ],
+        "object_ids": [],
+        "parent_room_id": null,
+        "perimeter_m": 16.0,
+        "physical_room_id": "2418ad273ed8e30b192b160ec5b396565745c88f486764cf2eb88bbde28618fb",
+        "selectable": true,
+        "window_ids": []
+      },
+      {
+        "area_gross_m2": 16.0,
+        "area_m2": 16.0,
+        "area_net_m2": 16.0,
+        "bbox": {
+          "max_x": 4.0,
+          "max_y": 8.0,
+          "min_x": 0.0,
+          "min_y": 4.0
+        },
+        "boundary": [
+          {
+            "x": 0.0,
+            "y": 8.0
+          },
+          {
+            "x": 4.0,
+            "y": 8.0
+          },
+          {
+            "x": 4.0,
+            "y": 4.0
+          },
+          {
+            "x": 0.0,
+            "y": 4.0
+          }
+        ],
+        "center": {
+          "x": 2.0,
+          "y": 6.0
+        },
+        "confidence": 0.9485198118354745,
+        "dimensions": {
+          "length_m": 4.0,
+          "width_m": 4.0
+        },
+        "door_ids": [],
+        "id": "7373d57d1e56892cbce545cbb26ae257166a46ba57dc7fca2dc846287c6fdabf",
+        "kind": "indoor",
+        "name": null,
+        "neighbor_ids": [
+          "00e6794c836689f46d9d6b81df35aeb072f5df6e801ddd9e693c93e1cd810d09",
+          "2418ad273ed8e30b192b160ec5b396565745c88f486764cf2eb88bbde28618fb",
+          "432f227475dde357a5c5c11ed97b9b22fd1d0e0bcb93b4ba8f99250ac078a238"
+        ],
+        "object_ids": [],
+        "parent_room_id": null,
+        "perimeter_m": 16.0,
+        "physical_room_id": "7373d57d1e56892cbce545cbb26ae257166a46ba57dc7fca2dc846287c6fdabf",
+        "selectable": true,
+        "window_ids": []
+      }
+    ],
+    "rooms": [
+      {
+        "area_gross_m2": 16.0,
+        "area_m2": 16.0,
+        "area_net_m2": 16.0,
+        "bbox": {
+          "max_x": 4.0,
+          "max_y": 4.0,
+          "min_x": 0.0,
+          "min_y": 0.0
+        },
+        "boundary": [
+          {
+            "x": 4.0,
+            "y": 0.0
+          },
+          {
+            "x": 0.0,
+            "y": 0.0
+          },
+          {
+            "x": 0.0,
+            "y": 4.0
+          },
+          {
+            "x": 4.0,
+            "y": 4.0
+          }
+        ],
+        "center": {
+          "x": 2.0,
+          "y": 2.0
+        },
+        "confidence": 0.9485198118354745,
+        "dimensions": {
+          "length_m": 4.0,
+          "width_m": 4.0
+        },
+        "door_ids": [],
+        "id": "432f227475dde357a5c5c11ed97b9b22fd1d0e0bcb93b4ba8f99250ac078a238",
+        "kind": "indoor",
+        "name": null,
+        "neighbor_ids": [
+          "00e6794c836689f46d9d6b81df35aeb072f5df6e801ddd9e693c93e1cd810d09",
+          "2418ad273ed8e30b192b160ec5b396565745c88f486764cf2eb88bbde28618fb",
+          "7373d57d1e56892cbce545cbb26ae257166a46ba57dc7fca2dc846287c6fdabf"
+        ],
+        "object_ids": [],
+        "parent_room_id": null,
+        "perimeter_m": 16.0,
+        "physical_room_id": "432f227475dde357a5c5c11ed97b9b22fd1d0e0bcb93b4ba8f99250ac078a238",
+        "selectable": true,
+        "window_ids": []
+      },
+      {
+        "area_gross_m2": 16.0,
+        "area_m2": 16.0,
+        "area_net_m2": 16.0,
+        "bbox": {
+          "max_x": 8.0,
+          "max_y": 4.0,
+          "min_x": 4.0,
+          "min_y": 0.0
+        },
+        "boundary": [
+          {
+            "x": 8.0,
+            "y": 0.0
+          },
+          {
+            "x": 4.0,
+            "y": 0.0
+          },
+          {
+            "x": 4.0,
+            "y": 4.0
+          },
+          {
+            "x": 8.0,
+            "y": 4.0
+          }
+        ],
+        "center": {
+          "x": 6.0,
+          "y": 2.0
+        },
+        "confidence": 0.9485198118354745,
+        "dimensions": {
+          "length_m": 4.0,
+          "width_m": 4.0
+        },
+        "door_ids": [],
+        "id": "00e6794c836689f46d9d6b81df35aeb072f5df6e801ddd9e693c93e1cd810d09",
+        "kind": "indoor",
+        "name": null,
+        "neighbor_ids": [
+          "2418ad273ed8e30b192b160ec5b396565745c88f486764cf2eb88bbde28618fb",
+          "432f227475dde357a5c5c11ed97b9b22fd1d0e0bcb93b4ba8f99250ac078a238",
+          "7373d57d1e56892cbce545cbb26ae257166a46ba57dc7fca2dc846287c6fdabf"
+        ],
+        "object_ids": [],
+        "parent_room_id": null,
+        "perimeter_m": 16.0,
+        "physical_room_id": "00e6794c836689f46d9d6b81df35aeb072f5df6e801ddd9e693c93e1cd810d09",
+        "selectable": true,
+        "window_ids": []
+      },
+      {
+        "area_gross_m2": 16.0,
+        "area_m2": 16.0,
+        "area_net_m2": 16.0,
+        "bbox": {
+          "max_x": 8.0,
+          "max_y": 8.0,
+          "min_x": 4.0,
+          "min_y": 4.0
+        },
+        "boundary": [
+          {
+            "x": 8.0,
+            "y": 8.0
+          },
+          {
+            "x": 8.0,
+            "y": 4.0
+          },
+          {
+            "x": 4.0,
+            "y": 4.0
+          },
+          {
+            "x": 4.0,
+            "y": 8.0
+          }
+        ],
+        "center": {
+          "x": 6.0,
+          "y": 6.0
+        },
+        "confidence": 0.9485198118354745,
+        "dimensions": {
+          "length_m": 4.0,
+          "width_m": 4.0
+        },
+        "door_ids": [],
+        "id": "2418ad273ed8e30b192b160ec5b396565745c88f486764cf2eb88bbde28618fb",
+        "kind": "indoor",
+        "name": null,
+        "neighbor_ids": [
+          "00e6794c836689f46d9d6b81df35aeb072f5df6e801ddd9e693c93e1cd810d09",
+          "432f227475dde357a5c5c11ed97b9b22fd1d0e0bcb93b4ba8f99250ac078a238",
+          "7373d57d1e56892cbce545cbb26ae257166a46ba57dc7fca2dc846287c6fdabf"
+        ],
+        "object_ids": [],
+        "parent_room_id": null,
+        "perimeter_m": 16.0,
+        "physical_room_id": "2418ad273ed8e30b192b160ec5b396565745c88f486764cf2eb88bbde28618fb",
+        "selectable": true,
+        "window_ids": []
+      },
+      {
+        "area_gross_m2": 16.0,
+        "area_m2": 16.0,
+        "area_net_m2": 16.0,
+        "bbox": {
+          "max_x": 4.0,
+          "max_y": 8.0,
+          "min_x": 0.0,
+          "min_y": 4.0
+        },
+        "boundary": [
+          {
+            "x": 0.0,
+            "y": 8.0
+          },
+          {
+            "x": 4.0,
+            "y": 8.0
+          },
+          {
+            "x": 4.0,
+            "y": 4.0
+          },
+          {
+            "x": 0.0,
+            "y": 4.0
+          }
+        ],
+        "center": {
+          "x": 2.0,
+          "y": 6.0
+        },
+        "confidence": 0.9485198118354745,
+        "dimensions": {
+          "length_m": 4.0,
+          "width_m": 4.0
+        },
+        "door_ids": [],
+        "id": "7373d57d1e56892cbce545cbb26ae257166a46ba57dc7fca2dc846287c6fdabf",
+        "kind": "indoor",
+        "name": null,
+        "neighbor_ids": [
+          "00e6794c836689f46d9d6b81df35aeb072f5df6e801ddd9e693c93e1cd810d09",
+          "2418ad273ed8e30b192b160ec5b396565745c88f486764cf2eb88bbde28618fb",
+          "432f227475dde357a5c5c11ed97b9b22fd1d0e0bcb93b4ba8f99250ac078a238"
+        ],
+        "object_ids": [],
+        "parent_room_id": null,
+        "perimeter_m": 16.0,
+        "physical_room_id": "7373d57d1e56892cbce545cbb26ae257166a46ba57dc7fca2dc846287c6fdabf",
+        "selectable": true,
+        "window_ids": []
+      }
+    ],
+    "texts": [],
+    "unassigned_objects": [],
+    "unit": "m",
+    "virtual_dividers": [],
+    "walls": [
+      {
+        "confidence": 0.997991267360964,
+        "end": {
+          "x": 4.0,
+          "y": 0.0
+        },
+        "id": "790332b04bec729892230c39b46a16bdae2c2df0f517658ff525d08bdfc4be96",
+        "predicted_class": "wall",
+        "primitive_ids": [],
+        "start": {
+          "x": 0.0,
+          "y": 0.0
+        }
+      },
+      {
+        "confidence": 0.997991267360964,
+        "end": {
+          "x": 8.0,
+          "y": 0.0
+        },
+        "id": "88b9967f89798a268eadf77a55ad5004f62b52b541bce42340c9ee8ae2472af2",
+        "predicted_class": "wall",
+        "primitive_ids": [],
+        "start": {
+          "x": 4.0,
+          "y": 0.0
+        }
+      },
+      {
+        "confidence": 0.997991267360964,
+        "end": {
+          "x": 8.0,
+          "y": 4.0
+        },
+        "id": "426444607938102e39ea91c0edb1bc8b120da043992b2a9eff6cade524dd3049",
+        "predicted_class": "wall",
+        "primitive_ids": [],
+        "start": {
+          "x": 8.0,
+          "y": 0.0
+        }
+      },
+      {
+        "confidence": 0.997991267360964,
+        "end": {
+          "x": 8.0,
+          "y": 8.0
+        },
+        "id": "64cfbbb196c2d80d61d260517ec2c2aa04c96b799cc585df21df144a719ed814",
+        "predicted_class": "wall",
+        "primitive_ids": [],
+        "start": {
+          "x": 8.0,
+          "y": 4.0
+        }
+      },
+      {
+        "confidence": 0.997991267360964,
+        "end": {
+          "x": 8.0,
+          "y": 8.0
+        },
+        "id": "6e7d02ea03e8a936647632a6c014480111e2d9914df7b0703ac051a9bf569d97",
+        "predicted_class": "wall",
+        "primitive_ids": [],
+        "start": {
+          "x": 4.0,
+          "y": 8.0
+        }
+      },
+      {
+        "confidence": 0.997991267360964,
+        "end": {
+          "x": 4.0,
+          "y": 8.0
+        },
+        "id": "51a6c1a459ed50721a610621b3c2a3cf11e7fd25e5002fb135503d47297a31b4",
+        "predicted_class": "wall",
+        "primitive_ids": [],
+        "start": {
+          "x": 0.0,
+          "y": 8.0
+        }
+      },
+      {
+        "confidence": 0.997991267360964,
+        "end": {
+          "x": 0.0,
+          "y": 8.0
+        },
+        "id": "b9e8f7238ca549a762bed729ab847a3f02525c07b10968aa466167cccefbc364",
+        "predicted_class": "wall",
+        "primitive_ids": [],
+        "start": {
+          "x": 0.0,
+          "y": 4.0
+        }
+      },
+      {
+        "confidence": 0.997991267360964,
+        "end": {
+          "x": 0.0,
+          "y": 4.0
+        },
+        "id": "1309fd19ea28cbd805859b0761b4e8f1877b4477bf258ceeee8d035a3a335862",
+        "predicted_class": "wall",
+        "primitive_ids": [],
+        "start": {
+          "x": 0.0,
+          "y": 0.0
+        }
+      },
+      {
+        "confidence": 0.997991267360964,
+        "end": {
+          "x": 4.0,
+          "y": 4.0
+        },
+        "id": "7d92584155514e799eb80f688e5ceee9ce2f8528a8c2bd2b4f9894515a39334a",
+        "predicted_class": "wall",
+        "primitive_ids": [],
+        "start": {
+          "x": 0.0,
+          "y": 4.0
+        }
+      },
+      {
+        "confidence": 0.997991267360964,
+        "end": {
+          "x": 8.0,
+          "y": 4.0
+        },
+        "id": "e8ca45a2147bdfe04350087bb11518083b7275f94e997688b8603991652df732",
+        "predicted_class": "wall",
+        "primitive_ids": [],
+        "start": {
+          "x": 4.0,
+          "y": 4.0
+        }
+      },
+      {
+        "confidence": 0.997991267360964,
+        "end": {
+          "x": 4.0,
+          "y": 4.0
+        },
+        "id": "14306324d00085f94ad7fe7d7f3fa2680d25208c19b58a603904e6d7681d4ff5",
+        "predicted_class": "wall",
+        "primitive_ids": [],
+        "start": {
+          "x": 4.0,
+          "y": 0.0
+        }
+      },
+      {
+        "confidence": 0.997991267360964,
+        "end": {
+          "x": 4.0,
+          "y": 8.0
+        },
+        "id": "f6ad647a76d0c14988f42e3006474bb5811a64ad3a04acd13d289be7dfb15e90",
+        "predicted_class": "wall",
+        "primitive_ids": [],
+        "start": {
+          "x": 4.0,
+          "y": 4.0
+        }
+      }
+    ],
+    "warnings": [],
+    "windows": []
+  },
+  "plan_graph_sha256": "515796ef747ae2c38cb91cde1e9b2746e9d4e82f13550b803924d36c25bb2f8a",
+  "primitive_kinds": [
+    "line",
+    "line",
+    "lwpolyline"
+  ]
+}

@@ -61,6 +61,9 @@ class Settings(BaseSettings):
     oda_converter_path: str = ""
     oda_dxf_version: str = "R2018"
 
+    # Runtime-only. Not part of job configuration_hash.
+    entity_classify_workers: int = 4
+
     # GNN-C training / promotion. Not part of job configuration_hash.
     face_train_min_labeled_jobs: int = 50
     face_train_min_classes: int = 2

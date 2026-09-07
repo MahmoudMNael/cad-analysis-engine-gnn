@@ -142,6 +142,7 @@ async def create_job(
     queue: JobQueue = Depends(get_queue),
     engine_sha: str = Depends(get_engine_sha),
 ) -> JobCreatedResponse:
+    print("create_job called with file:", file.filename, "unit:", unit, "consent_training:", consent_training, "email:", email)
     data = await file.read()
     created = _create_job(
         data=data,
@@ -244,6 +245,8 @@ def get_layout(
     if job.status == JobStatus.FAILED.value:
         raise JobFailedError(job_id, job.error_detail or job.error_code or "failed")
     if job.status != JobStatus.SUCCEEDED.value:
+        if job.status == JobStatus.CANCELLED.value: 
+            raise JobNotCancellableError(job_id, job.status)
         raise JobNotReadyError(job_id, job.status)
     layout = derived_layout(job_id, events=events, snapshots=snaps)
     return LayoutResponse(success=True, data=layout, message="")

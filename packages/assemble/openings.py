@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from packages.assemble.rooms import PhysicalRoom
+from packages.common.spatial_index import SpatialIndex, expand_bounds
 from packages.contracts.enums import PortalKind
 from packages.graphkit.models import Portal
 
@@ -11,10 +12,16 @@ def attach_openings(
 ) -> tuple[tuple[PhysicalRoom, ...], tuple[Portal, ...], tuple[Portal, ...]]:
     doors = tuple(p for p in portals if p.kind is PortalKind.DOOR)
     windows = tuple(p for p in portals if p.kind is PortalKind.WINDOW)
+    door_index = SpatialIndex.build([(p.id, p.geometry) for p in doors])
+    window_index = SpatialIndex.build([(p.id, p.geometry) for p in windows])
     updated: list[PhysicalRoom] = []
     for room in rooms:
-        door_ids = [p.id for p in doors if room.geometry.buffer(0.08).intersects(p.geometry)]
-        window_ids = [p.id for p in windows if room.geometry.buffer(0.08).intersects(p.geometry)]
+        buf = room.geometry.buffer(0.08)
+        probe = expand_bounds(room.geometry, 0.08)
+        door_hits = set(door_index.query(probe))
+        window_hits = set(window_index.query(probe))
+        door_ids = [p.id for p in doors if p.id in door_hits and buf.intersects(p.geometry)]
+        window_ids = [p.id for p in windows if p.id in window_hits and buf.intersects(p.geometry)]
         updated.append(
             PhysicalRoom(
                 id=room.id,

@@ -227,7 +227,9 @@ def build_document(
     settings: Settings,
     explicit_unit: str | None = None,
 ) -> tuple[Document, list[WarningDto]]:
-    fmt = sniff_format(path.name, path.read_bytes()[:256])
+    with path.open("rb") as handle:
+        header = handle.read(256)
+    fmt = sniff_format(path.name, header)
     if fmt is not CadFormat.DXF:
         raise UnsupportedFormatError("unsupported CAD format")
     doc, warnings = load_dxf(path)

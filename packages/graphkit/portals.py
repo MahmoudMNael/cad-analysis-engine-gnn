@@ -1,12 +1,13 @@
 from __future__ import annotations
 
-from shapely.geometry import LineString, Point
+from shapely.geometry import LineString
 
 from packages.common.configuration import Settings
 from packages.common.geometry import canonicalize_unordered_pair
 from packages.common.hashing import stable_hash
+from packages.common.spatial_index import SpatialIndex, expand_bounds
 from packages.contracts.enums import EntityClass, PortalKind
-from packages.graphkit.models import PlanGraph, Portal
+from packages.graphkit.models import GraphEdge, PlanGraph, Portal
 from packages.ingest.models import Primitive
 from packages.models_nn.common import EntityScore, GapScore
 
@@ -42,7 +43,8 @@ def detect_portals(
     settings: Settings,
 ) -> tuple[Portal, ...]:
     portals: list[Portal] = []
-    by_id = {p.id: p for p in primitives}
+    edge_index = SpatialIndex.build([(e.id, e.geometry) for e in graph.edges])
+    edge_by_id = graph.edge_map()
     for prim in primitives:
         score = entity_scores.get(prim.id)
         if score is None or score.predicted_class != EntityClass.OPENING.value:
@@ -59,7 +61,7 @@ def detect_portals(
             c = geom.centroid
             line = LineString([(c.x - 0.4, c.y), (c.x + 0.4, c.y)])
         kind = infer_portal_kind(prim, line.length, settings)
-        nearest = _nearest_edge_ids(graph, line, settings)
+        nearest = _nearest_edge_ids(line, settings, edge_index, edge_by_id)
         portals.append(
             Portal(
                 id=_portal_id(kind.value, line, settings.coord_precision),
@@ -77,7 +79,7 @@ def detect_portals(
         if geom is None:
             continue
         kind = infer_portal_kind(None, geom.length, settings)
-        nearest = _nearest_edge_ids(graph, geom, settings)
+        nearest = _nearest_edge_ids(geom, settings, edge_index, edge_by_id)
         portals.append(
             Portal(
                 id=_portal_id(kind.value, geom, settings.coord_precision),
@@ -93,11 +95,21 @@ def detect_portals(
     return tuple(unique.values())
 
 
-def _nearest_edge_ids(graph: PlanGraph, geom: LineString, settings: Settings, limit: int = 2) -> list[str]:
+def _nearest_edge_ids(
+    geom: LineString,
+    settings: Settings,
+    edge_index: SpatialIndex,
+    edge_by_id: dict[str, GraphEdge],
+    limit: int = 2,
+) -> list[str]:
+    radius = max(settings.snap_tolerance_m * 4, 0.15)
     scored: list[tuple[float, str]] = []
-    for edge in graph.edges:
+    for eid in edge_index.query(expand_bounds(geom, radius)):
+        edge = edge_by_id.get(eid)
+        if edge is None:
+            continue
         d = edge.geometry.distance(geom)
-        if d <= max(settings.snap_tolerance_m * 4, 0.15):
+        if d <= radius:
             scored.append((d, edge.id))
     scored.sort()
     return [eid for _, eid in scored[:limit]]

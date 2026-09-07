@@ -6,30 +6,19 @@ from dataclasses import dataclass
 
 from shapely.geometry import Point
 from shapely.geometry.base import BaseGeometry
-from shapely.strtree import STRtree
 
-from packages.ingest.models import Primitive
 from packages.common.geometry import iter_line_segments
+from packages.common.spatial_index import SpatialIndex, build_index, expand_bounds, query_ids
+from packages.ingest.models import Primitive
 
-
-@dataclass
-class SpatialIndex:
-    ids: tuple[str, ...]
-    geoms: tuple[BaseGeometry, ...]
-    tree: STRtree
-
-    @classmethod
-    def build(cls, items: list[tuple[str, BaseGeometry]]) -> SpatialIndex:
-        ids = tuple(i for i, _ in items)
-        geoms = tuple(g for _, g in items)
-        tree = STRtree(list(geoms)) if geoms else STRtree([])
-        return cls(ids=ids, geoms=geoms, tree=tree)
-
-    def query(self, geom: BaseGeometry, predicate: str = "intersects") -> list[str]:
-        if not self.geoms:
-            return []
-        indexes = self.tree.query(geom, predicate=predicate)
-        return [self.ids[int(i)] for i in indexes]
+__all__ = [
+    "PrimitiveIndexes",
+    "SpatialIndex",
+    "build_index",
+    "build_primitive_indexes",
+    "expand_bounds",
+    "query_ids",
+]
 
 
 @dataclass(frozen=True)

@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass, replace
 
 from packages.assemble.rooms import PhysicalRoom
+from packages.common.spatial_index import SpatialIndex
 from packages.contracts.enums import EntityClass
 from packages.ingest.models import Primitive
 from packages.models_nn.common import EntityScore
@@ -27,6 +28,7 @@ def assemble_texts(
 ) -> tuple[tuple[LayoutText, ...], tuple[PhysicalRoom, ...]]:
     texts: list[LayoutText] = []
     names: dict[str, str] = {}
+    room_index = SpatialIndex.build([(r.id, r.geometry) for r in rooms])
     for prim in primitives:
         score = scores.get(prim.id)
         is_text = prim.kind.value == "text" or (score and score.predicted_class == EntityClass.TEXT.value)
@@ -35,7 +37,10 @@ def assemble_texts(
         content = str(prim.attributes.get("content") or "")
         c = prim.geometry.centroid
         room_id = None
+        hits = set(room_index.query(prim.geometry)) | set(room_index.query(c))
         for room in rooms:
+            if room.id not in hits:
+                continue
             if room.geometry.contains(c) or room.geometry.intersects(prim.geometry):
                 room_id = room.id
                 if content.strip() and not _looks_like_dimension(content) and room.id not in names:

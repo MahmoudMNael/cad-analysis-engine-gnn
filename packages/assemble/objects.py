@@ -6,6 +6,7 @@ from shapely.geometry.base import BaseGeometry
 
 from packages.assemble.rooms import PhysicalRoom
 from packages.common.configuration import Settings
+from packages.common.spatial_index import SpatialIndex, expand_bounds
 from packages.contracts.enums import EntityClass
 from packages.ingest.models import Primitive
 from packages.models_nn.common import EntityScore
@@ -32,6 +33,8 @@ def assemble_objects(
 ) -> tuple[tuple[PlacedObject, ...], tuple[PlacedObject, ...], tuple[PhysicalRoom, ...]]:
     assigned: list[PlacedObject] = []
     unassigned: list[PlacedObject] = []
+    room_index = SpatialIndex.build([(r.id, r.geometry) for r in rooms])
+    tol = settings.object_assignment_tolerance_m
     for prim in primitives:
         score = scores.get(prim.id)
         furniture = False
@@ -49,8 +52,11 @@ def assemble_objects(
             continue
         c = prim.geometry.centroid
         room_id = None
+        hits = set(room_index.query(expand_bounds(c, tol)))
         for room in rooms:
-            if room.geometry.buffer(settings.object_assignment_tolerance_m).contains(c):
+            if room.id not in hits:
+                continue
+            if room.geometry.buffer(tol).contains(c):
                 room_id = room.id
                 break
         obj = PlacedObject(

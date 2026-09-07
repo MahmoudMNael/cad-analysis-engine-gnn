@@ -24,6 +24,11 @@ class EntityRuntime:
     def __init__(self, model_ref: str) -> None:
         self.model_ref = model_ref
         self._heuristic = HeuristicEntityClassifier()
+        self._gnn = None  # P3+ entity GNN; heuristic does not use neighbor features.
+
+    @property
+    def requires_neighbor_features(self) -> bool:
+        return self._gnn is not None
 
     def predict(self, primitive: Primitive, features: EntityFeatures, settings: Settings) -> EntityScore:
         return self._heuristic.predict(primitive, features, settings)

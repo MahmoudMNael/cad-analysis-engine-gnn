@@ -9,6 +9,7 @@ from shapely.strtree import STRtree
 
 from packages.common.configuration import Settings
 from packages.common.geometry import round_point
+from packages.common.spatial_index import expand_bounds
 
 
 @dataclass(frozen=True)
@@ -69,7 +70,7 @@ def node_segments(segments: list[RawSegment], settings: Settings) -> list[RawSeg
     precision = settings.coord_precision
 
     for i, line in enumerate(lines):
-        hits = tree.query(line.buffer(tol), predicate="intersects")
+        hits = tree.query(expand_bounds(line, tol), predicate="intersects")
         for j in hits:
             j = int(j)
             if j <= i:

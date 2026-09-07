@@ -7,6 +7,7 @@ from shapely.geometry import Polygon
 from packages.assemble.face_filters import is_room_face
 from packages.assemble.polygonize import Face, FaceSet
 from packages.common.geometry import aspect_ratio
+from packages.common.spatial_index import SpatialIndex, expand_bounds
 from packages.contracts.enums import FaceClass
 from packages.models_nn.common import FaceScore
 
@@ -41,8 +42,12 @@ def assemble_physical_rooms(
         if is_room_face(score, face):
             accepted.append((face, score))
     neighbors: dict[str, list[str]] = {face.id: [] for face, _ in accepted}
+    room_index = SpatialIndex.build([(face.id, face.geometry) for face, _ in accepted])
     for i, (a, _) in enumerate(accepted):
+        hits = set(room_index.query(expand_bounds(a.geometry.boundary, 1e-4)))
         for b, _ in accepted[i + 1 :]:
+            if b.id not in hits:
+                continue
             if a.geometry.boundary.intersects(b.geometry.boundary.buffer(1e-4)):
                 neighbors[a.id].append(b.id)
                 neighbors[b.id].append(a.id)

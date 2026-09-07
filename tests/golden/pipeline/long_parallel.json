@@ -1,0 +1,94 @@
+{
+  "document_sha256": "7285d2df8959b5826fcd0dd06b7c4f22d20f9361cbb7626ba1d6d3d346311779",
+  "faces": {
+    "accepted_as_room": [],
+    "face_id": [],
+    "features": [],
+    "predicted_class": []
+  },
+  "layout": {
+    "doors": [],
+    "lights": [],
+    "meta": {
+      "configuration_hash": "657b4f3c5e7156fed7c5d0ab191f92dd76275b07c94fd007a58219a827245d2e",
+      "feature_schema_versions": {
+        "entity": "entity_features_v1",
+        "face": "face_features_v1",
+        "gap": "gap_features_v1"
+      },
+      "layout_rev": 0,
+      "layout_schema": "layout.v1",
+      "model_decision_sources": {
+        "entity": "heuristic",
+        "face": "heuristic",
+        "gap": "heuristic"
+      },
+      "model_versions": {
+        "entity_model_version": "heuristic:entity_v1",
+        "face_model_version": "heuristic:face_v1",
+        "gap_model_version": "heuristic:gap_v1"
+      },
+      "pipeline_version": "1.0.0",
+      "scale_factor": 0.001,
+      "unit": "m",
+      "unit_source": "cad_metadata"
+    },
+    "objects": [],
+    "physical_rooms": [],
+    "rooms": [],
+    "texts": [],
+    "unassigned_objects": [],
+    "unit": "m",
+    "virtual_dividers": [],
+    "walls": [
+      {
+        "confidence": 0.997991267360964,
+        "end": {
+          "x": 20.0,
+          "y": 0.0
+        },
+        "id": "5d0d4b68c049e024c4009d0a6b64539446d8e4baaea7e5267611ebb82f502c31",
+        "predicted_class": "wall",
+        "primitive_ids": [],
+        "start": {
+          "x": 0.0,
+          "y": 0.0
+        }
+      },
+      {
+        "confidence": 0.997991267360964,
+        "end": {
+          "x": 20.0,
+          "y": 8.0
+        },
+        "id": "d945eb0b922fc33971754efff8f4603ef7a68f1026910252783c82cc84547621",
+        "predicted_class": "wall",
+        "primitive_ids": [],
+        "start": {
+          "x": 0.0,
+          "y": 8.0
+        }
+      }
+    ],
+    "warnings": [
+      {
+        "code": "CAD_PARSE_WARNING",
+        "message": "polygonize note: {'code': 'cuts', 'detail': 'GeometryCollection'}",
+        "severity": "info",
+        "target_ids": []
+      },
+      {
+        "code": "NO_ROOMS_FOUND",
+        "message": "No physical rooms were assembled",
+        "severity": "warning",
+        "target_ids": []
+      }
+    ],
+    "windows": []
+  },
+  "plan_graph_sha256": "0ae33066dc46b9cdc242d7a4bb9d496c6f2c1a1d3b68fdd7ebabe096598630cb",
+  "primitive_kinds": [
+    "line",
+    "line"
+  ]
+}

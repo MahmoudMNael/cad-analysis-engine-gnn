@@ -11,7 +11,7 @@ HTTP_STATUS: dict[ErrorCode, int] = {
     ErrorCode.CAD_PARSE_ERROR: 400,
     ErrorCode.CONVERSION_ERROR: 400,
     ErrorCode.JOB_NOT_FOUND: 404,
-    ErrorCode.JOB_NOT_READY: 409,
+    ErrorCode.JOB_NOT_READY: 202,
     ErrorCode.JOB_FAILED: 409,
     ErrorCode.JOB_NOT_CANCELLABLE: 409,
     ErrorCode.LAYOUT_NOT_FOUND: 404,
