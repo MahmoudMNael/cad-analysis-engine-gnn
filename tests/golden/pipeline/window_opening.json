@@ -213,7 +213,7 @@
     "warnings": [],
     "windows": [
       {
-        "confidence": 0.8554136861094188,
+        "confidence": 0.9611432080343993,
         "end": {
           "x": 2.8,
           "y": 4.0
@@ -230,7 +230,7 @@
       }
     ]
   },
-  "plan_graph_sha256": "3b55ae28f6bea0d92e17b0a221da02d2e551597aab2a50589c86d4f3de0d964b",
+  "plan_graph_sha256": "86920c7c9bd63db0b8230d23e4361aa659a082c79f72652b1d7f30c0d9e4de93",
   "primitive_kinds": [
     "line",
     "lwpolyline"

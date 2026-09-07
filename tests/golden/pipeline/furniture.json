@@ -54,7 +54,7 @@
           "x": 1.5000000177815442,
           "y": 1.5
         },
-        "confidence": 0.9910600092371211,
+        "confidence": 0.9994517553482067,
         "kind": "furniture",
         "layer": "FURNITURE",
         "room_id": "242db60f6b94e79727681ab5d7b72840e4ae15ef1afe48f445b2d1e9d422ac84"
@@ -227,7 +227,7 @@
     "warnings": [],
     "windows": []
   },
-  "plan_graph_sha256": "c1ebe929725f792bbf47e9a63455b9d7b53c6c95f1e69430e2c7a4866af601b3",
+  "plan_graph_sha256": "2d43fc5ef1a5db1fd46ca7773743db5979d8db0735b6af718330a79a4cd3309c",
   "primitive_kinds": [
     "circle",
     "lwpolyline"

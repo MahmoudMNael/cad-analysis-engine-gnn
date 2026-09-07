@@ -5,7 +5,7 @@ from collections import defaultdict
 from shapely.geometry import LineString
 
 from packages.common.configuration import Settings
-from packages.common.geometry import canonicalize_unordered_pair, iter_line_segments
+from packages.common.geometry import canonicalize_unordered_pair, chord_curvature, iter_line_segments
 from packages.common.hashing import stable_hash
 from packages.contracts.enums import EntityClass
 from packages.graphkit.models import GraphEdge, GraphNode, PlanGraph, Portal
@@ -14,6 +14,16 @@ from packages.graphkit.snapping import snap_endpoints
 from packages.graphkit.validation import validate_plan_graph
 from packages.ingest.models import Primitive
 from packages.models_nn.common import EntityScore, GapScore
+
+NON_WALL_CLASSES = {
+    EntityClass.FURNITURE.value,
+    EntityClass.TEXT.value,
+    EntityClass.DIM.value,
+    EntityClass.HATCH.value,
+    EntityClass.OPENING.value,
+}
+ARC_KINDS = {"arc", "circle"}
+ARC_SOURCE_TYPES = {"ARC", "CIRCLE", "ELLIPSE"}
 
 
 def _node_id(point: tuple[float, float], precision: int) -> str:
@@ -25,6 +35,24 @@ def _edge_id(a: tuple[float, float], b: tuple[float, float], precision: int) -> 
     return stable_hash("edge", pair, {})
 
 
+def _named_wall(primitive: Primitive) -> bool:
+    blob = f"{primitive.layer} {primitive.block_name or ''}".lower()
+    return any(word in blob for word in ("wall", "a-wall", "mur", "partition"))
+
+
+def _opening_artwork(primitive: Primitive) -> bool:
+    if primitive.kind.value in ARC_KINDS or primitive.source_entity_type.upper() in ARC_SOURCE_TYPES:
+        return True
+    geom = primitive.geometry
+    if geom.geom_type != "LineString" or len(geom.coords) < 3:
+        return False
+    start, end = geom.coords[0], geom.coords[-1]
+    closed = bool(primitive.attributes.get("closed")) or (start[0] == end[0] and start[1] == end[1])
+    if closed:
+        return False
+    return chord_curvature(geom) >= 0.08 and 0.3 <= primitive.length <= 3.0
+
+
 def wall_candidate_primitives(
     primitives: tuple[Primitive, ...],
     scores: dict[str, EntityScore],
@@ -34,10 +62,14 @@ def wall_candidate_primitives(
     for prim in primitives:
         if prim.attributes.get("measurement"):
             continue
-        if prim.kind.value in {"text", "hatch"}:
+        if prim.kind.value in {"text", "hatch", "circle"}:
             continue
         score = scores.get(prim.id)
         if score is None:
+            continue
+        if score.predicted_class in NON_WALL_CLASSES:
+            continue
+        if _opening_artwork(prim) and not _named_wall(prim):
             continue
         wall_p = score.probabilities.get(EntityClass.WALL.value, 0.0)
         if score.predicted_class == EntityClass.WALL.value or wall_p >= settings.entity_threshold:

@@ -20,7 +20,7 @@
         "confidence": 0.45,
         "end": {
           "x": 0.0,
-          "y": 1.6
+          "y": 2.5
         },
         "id": "b3d8617d877052d68e16f5738e46d0532ef94a2fc0c6097dca51f3cc00396b79",
         "kind": "door",
@@ -30,7 +30,7 @@
         ],
         "start": {
           "x": 0.0,
-          "y": 2.5
+          "y": 1.6
         }
       }
     ],
@@ -261,7 +261,7 @@
     "warnings": [],
     "windows": []
   },
-  "plan_graph_sha256": "c511c266cee0be8f94c26d313946fdef91e2b74b26fda6ad3111450f38a87e23",
+  "plan_graph_sha256": "d6a94f75113a5b3bcde3084f5d488b5e176e133b13f8a81641b9ba2b923f48a8",
   "primitive_kinds": [
     "line",
     "line",

@@ -210,7 +210,7 @@
         }
       },
       {
-        "confidence": 0.9942689496807838,
+        "confidence": 0.997991267360964,
         "end": {
           "x": 1.4,
           "y": 1.0
@@ -224,7 +224,7 @@
         }
       },
       {
-        "confidence": 0.9942689496807838,
+        "confidence": 0.997991267360964,
         "end": {
           "x": 1.4,
           "y": 1.4
@@ -238,7 +238,7 @@
         }
       },
       {
-        "confidence": 0.9942689496807838,
+        "confidence": 0.997991267360964,
         "end": {
           "x": 1.4,
           "y": 1.4
@@ -252,7 +252,7 @@
         }
       },
       {
-        "confidence": 0.9942689496807838,
+        "confidence": 0.997991267360964,
         "end": {
           "x": 1.0,
           "y": 1.4
@@ -269,7 +269,7 @@
     "warnings": [],
     "windows": []
   },
-  "plan_graph_sha256": "30e206a747b068736970c3d4bd84f998d4c0bf04200bc3ec507f7a5ed85b9047",
+  "plan_graph_sha256": "5e866b7e4b008faaf53ca8d57bd63377bd61915fef3594dbd44cf70c02475434",
   "primitive_kinds": [
     "lwpolyline",
     "lwpolyline"
