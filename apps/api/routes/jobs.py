@@ -43,7 +43,7 @@ from packages.ingest.dxf_loader import sniff_format
 from packages.store.db.repositories.jobs import JobRepository
 from packages.store.db.repositories.models import ModelRegistryRepository
 from packages.store.events import EventStore
-from packages.store.feedback import derived_layout
+from packages.store.feedback import derived_layout, reset_layout
 from packages.store.jobs import JobQueue
 from packages.store.models_registry import resolve_pinned_models
 from packages.store.object_store import ObjectStore
@@ -230,6 +230,18 @@ def cancel_job(
         data=_to_job_dto(cancelled, jobs.layout_rev(job_id)),
         message="Job cancelled",
     )
+
+
+@router.post("/jobs/{job_id}/reset", response_model=LayoutResponse)
+def reset_job(
+    job_id: str,
+    jobs: JobRepository = Depends(job_repo),
+    snaps: SnapshotStore = Depends(snapshot_store),
+    events: EventStore = Depends(event_store),
+) -> LayoutResponse:
+    reset_layout(job_id, jobs=jobs, events=events)
+    layout = derived_layout(job_id, events=events, snapshots=snaps)
+    return LayoutResponse(success=True, data=layout, message="Layout reset to revision 0")
 
 
 @router.get("/jobs/{job_id}/layout", response_model=LayoutResponse)

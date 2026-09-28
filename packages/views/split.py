@@ -4,6 +4,7 @@ import math
 from collections.abc import Sequence
 
 from shapely.geometry import LineString, Point, Polygon
+from shapely.geometry.base import BaseGeometry
 from shapely.ops import split as shapely_split
 
 from packages.contracts.dto.layout import RoomDto, VirtualDividerDto
@@ -14,6 +15,9 @@ from packages.views.models import (
     polygon_from_room,
     room_from_polygon,
 )
+
+_INTERIOR_EPS = 1e-6
+_BLADE_PAD_M = 1e-3
 
 
 def _extend_line(line: LineString, polygon: Polygon) -> LineString:
@@ -30,12 +34,97 @@ def _extend_line(line: LineString, polygon: Polygon) -> LineString:
     return LineString([(x0 - ux * pad, y0 - uy * pad), (x1 + ux * pad, y1 + uy * pad)])
 
 
-def split_polygon(polygon: Polygon, start: tuple[float, float], end: tuple[float, float]) -> list[Polygon]:
-    line = LineString([start, end])
-    if polygon.is_empty or line.is_empty:
+def _nudge_line(line: LineString, pad: float = _BLADE_PAD_M) -> LineString:
+    coords = list(line.coords)
+    x0, y0 = float(coords[0][0]), float(coords[0][1])
+    x1, y1 = float(coords[-1][0]), float(coords[-1][1])
+    dx, dy = x1 - x0, y1 - y0
+    mag = math.hypot(dx, dy)
+    if mag <= 0:
+        return line
+    ux, uy = dx / mag, dy / mag
+    return LineString([(x0 - ux * pad, y0 - uy * pad), (x1 + ux * pad, y1 + uy * pad)])
+
+
+def _line_pieces(geom: BaseGeometry) -> list[LineString]:
+    if geom is None or geom.is_empty:
         return []
-    extended = _extend_line(line, polygon)
-    result = shapely_split(polygon, extended)
+    if geom.geom_type == "LineString" and len(geom.coords) >= 2:
+        return [geom]
+    if geom.geom_type == "LinearRing":
+        return [LineString(geom.coords)]
+    if geom.geom_type in {"MultiLineString", "GeometryCollection", "MultiPolygon"}:
+        out: list[LineString] = []
+        for part in geom.geoms:
+            out.extend(_line_pieces(part))
+        return out
+    return []
+
+
+def _pick_stroke_piece(pieces: Sequence[LineString], stroke: LineString) -> LineString | None:
+    if not pieces:
+        return None
+    scored: list[tuple[float, float, float, LineString]] = []
+    for piece in pieces:
+        if piece.is_empty or piece.length <= 0:
+            continue
+        overlap = piece.intersection(stroke)
+        overlap_len = float(overlap.length) if not overlap.is_empty else 0.0
+        dist = float(piece.distance(stroke))
+        scored.append((overlap_len, -dist, piece.length, piece))
+    if not scored:
+        return None
+    scored.sort(reverse=True)
+    return scored[0][3]
+
+
+def _subtract_islands(target: Polygon, others: Sequence[Polygon], stroke: LineString) -> Polygon:
+    result: BaseGeometry = target
+    for other in others:
+        if other.is_empty or other.area <= 0:
+            continue
+        interior = other.buffer(-_INTERIOR_EPS)
+        if interior.is_empty:
+            continue
+        if not result.contains(interior):
+            continue
+        result = result.difference(other)
+    if result.is_empty:
+        return target
+    if result.geom_type == "Polygon":
+        return result
+    if result.geom_type == "MultiPolygon":
+        parts = [part for part in result.geoms if part.geom_type == "Polygon" and part.area > 1e-9]
+        if not parts:
+            return target
+        hitting = [part for part in parts if part.intersects(stroke) or part.distance(stroke) <= _INTERIOR_EPS]
+        return max(hitting or parts, key=lambda part: part.area)
+    return target
+
+
+def _local_chord(
+    polygon: Polygon,
+    start: tuple[float, float],
+    end: tuple[float, float],
+) -> tuple[tuple[float, float], tuple[float, float]] | None:
+    stroke = LineString([start, end])
+    if polygon.is_empty or stroke.is_empty:
+        return None
+    extended = _extend_line(stroke, polygon)
+    pieces = _line_pieces(extended.intersection(polygon))
+    piece = _pick_stroke_piece(pieces, stroke)
+    if piece is None:
+        return None
+    coords = list(piece.coords)
+    return (float(coords[0][0]), float(coords[0][1])), (float(coords[-1][0]), float(coords[-1][1]))
+
+
+def split_polygon(polygon: Polygon, start: tuple[float, float], end: tuple[float, float]) -> list[Polygon]:
+    chord = _local_chord(polygon, start, end)
+    if chord is None:
+        return []
+    blade = _nudge_line(LineString([chord[0], chord[1]]))
+    result = shapely_split(polygon, blade)
     pieces: list[Polygon] = []
     geoms = list(result.geoms) if hasattr(result, "geoms") else [result]
     for geom in geoms:
@@ -47,9 +136,6 @@ def split_polygon(polygon: Polygon, start: tuple[float, float], end: tuple[float
         return []
     pieces.sort(key=lambda g: (round(g.centroid.x, 6), round(g.centroid.y, 6), round(g.area, 6)))
     return pieces
-
-
-_INTERIOR_EPS = 1e-6
 
 
 def _stroke_enters_interior(polygon: Polygon, start: tuple[float, float], end: tuple[float, float]) -> bool:
@@ -86,21 +172,15 @@ def _auto_target_ids(
     return [ranked[0][2]]
 
 
-def _wall_to_wall_segment(
-    polygon: Polygon,
+def _prepared_polygon(
+    room: RoomDto,
+    rooms: Sequence[RoomDto],
     start: tuple[float, float],
     end: tuple[float, float],
-) -> tuple[tuple[float, float], tuple[float, float]]:
-    extended = _extend_line(LineString([start, end]), polygon)
-    inter = extended.intersection(polygon)
-    if inter.is_empty:
-        return start, end
-    geoms = list(inter.geoms) if inter.geom_type in {"MultiLineString", "GeometryCollection"} else [inter]
-    lines = [geom for geom in geoms if geom.geom_type == "LineString" and len(geom.coords) >= 2]
-    if not lines:
-        return start, end
-    coords = list(max(lines, key=lambda geom: geom.length).coords)
-    return (float(coords[0][0]), float(coords[0][1])), (float(coords[-1][0]), float(coords[-1][1]))
+) -> Polygon:
+    target = polygon_from_room(room)
+    others = [polygon_from_room(other) for other in rooms if other.id != room.id]
+    return _subtract_islands(target, others, LineString([start, end]))
 
 
 def rooms_split_by_line(
@@ -119,7 +199,7 @@ def rooms_split_by_line(
     for room in rooms:
         if room.id not in wanted and room.physical_room_id not in wanted:
             continue
-        pieces = split_polygon(polygon_from_room(room), start, end)
+        pieces = split_polygon(_prepared_polygon(room, rooms, start, end), start, end)
         if len(pieces) >= 2:
             out[room.id] = pieces
     return out
@@ -131,10 +211,19 @@ def split_room(
     end: tuple[float, float],
     target_ids: Sequence[str] | None = None,
 ) -> tuple[list[str], VirtualDividerDto]:
-    split_map = rooms_split_by_line(list(view.rooms.values()), start, end, target_ids)
-    if len(split_map) == 1:
-        parent = view.rooms[next(iter(split_map))]
-        start, end = _wall_to_wall_segment(polygon_from_room(parent), start, end)
+    rooms = list(view.rooms.values())
+    split_map = rooms_split_by_line(rooms, start, end, target_ids)
+    clip_ids = list(split_map.keys())
+    if not clip_ids:
+        if target_ids:
+            clip_ids = [tid for tid in target_ids if tid in view.rooms]
+        else:
+            clip_ids = _auto_target_ids(rooms, start, end)
+    if len(clip_ids) == 1 and clip_ids[0] in view.rooms:
+        parent = view.rooms[clip_ids[0]]
+        chord = _local_chord(_prepared_polygon(parent, rooms, start, end), start, end)
+        if chord is not None:
+            start, end = chord
     divider = make_divider(start, end)
     view.dividers[divider.id] = divider
     created: list[str] = []

@@ -10,6 +10,7 @@ REQUIRED_PATHS = {
     "/api/v1/jobs/{job_id}",
     "/api/v1/jobs/{job_id}/cancel",
     "/api/v1/jobs/{job_id}/layout",
+    "/api/v1/jobs/{job_id}/reset",
     "/api/v1/jobs/{job_id}/events",
     "/api/v1/jobs/{job_id}/dividers",
     "/api/v1/jobs/{job_id}/accept",

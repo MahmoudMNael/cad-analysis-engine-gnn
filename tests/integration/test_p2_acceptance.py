@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import time
 from pathlib import Path
 
 import pytest
@@ -38,6 +39,21 @@ def _process(job_id: str) -> None:
             conn=conn,
             object_store=ObjectStore(settings.object_store_dir),
         )
+
+
+def _wait_succeeded(client: TestClient, job_id: str, timeout_s: float = 60.0) -> None:
+    deadline = time.monotonic() + timeout_s
+    last = None
+    while time.monotonic() < deadline:
+        response = client.get(f"/api/v1/jobs/{job_id}")
+        last = response.json()
+        status = (last.get("data") or {}).get("status")
+        if status == "succeeded":
+            return
+        if status == "failed":
+            raise AssertionError(f"job failed: {last}")
+        time.sleep(0.2)
+    raise AssertionError(f"job did not succeed: {last}")
 
 
 def test_feedback_event_revision_derived_layout_and_compile(client: TestClient, tmp_path: Path):
@@ -146,3 +162,58 @@ def test_feedback_event_revision_derived_layout_and_compile(client: TestClient, 
     assert (tmp_path / "lake" / "link_pred.parquet").is_file()
     job = client.get(f"/api/v1/jobs/{job_id}")
     assert job.json()["data"]["layout_rev"] >= 4
+
+
+def test_reset_job_clears_feedback_and_restores_physical_layout(client: TestClient, tmp_path: Path):
+    dxf = write_simple_dxf(tmp_path / "reset.dxf", lambda msp: add_rect(msp, (0, 0), 5000, 4000))
+    with dxf.open("rb") as handle:
+        created = client.post(
+            "/api/v1/jobs",
+            files={"file": ("reset.dxf", handle, "application/dxf")},
+            data={"consent_training": "false"},
+        )
+    assert created.status_code == 202, created.text
+    job_id = created.json()["data"]["job_id"]
+    _process(job_id)
+    _wait_succeeded(client, job_id)
+
+    original = client.get(f"/api/v1/jobs/{job_id}/layout")
+    assert original.status_code == 200, original.text
+    original_rooms = [room["id"] for room in original.json()["data"]["rooms"]]
+    assert original.json()["data"]["meta"]["layout_rev"] == 0
+
+    divided = client.post(
+        f"/api/v1/jobs/{job_id}/dividers",
+        json={"start_x": 2.5, "start_y": -1.0, "end_x": 2.5, "end_y": 5.0, "expected_layout_rev": 0},
+    )
+    assert divided.status_code == 200, divided.text
+    split_rooms = [room["id"] for room in client.get(f"/api/v1/jobs/{job_id}/layout").json()["data"]["rooms"]]
+    assert len(split_rooms) >= 2
+    merged = client.post(
+        f"/api/v1/jobs/{job_id}/events",
+        json={
+            "action": "merge_rooms",
+            "target_ids": split_rooms,
+            "expected_layout_rev": 1,
+        },
+    )
+    assert merged.status_code == 200, merged.text
+    dirty = client.get(f"/api/v1/jobs/{job_id}/layout").json()["data"]
+    assert dirty["meta"]["layout_rev"] == 2
+    assert [room["id"] for room in dirty["rooms"]] != original_rooms
+
+    reset = client.post(f"/api/v1/jobs/{job_id}/reset")
+    assert reset.status_code == 200, reset.text
+    restored = reset.json()["data"]
+    assert restored["meta"]["layout_rev"] == 0
+    assert [room["id"] for room in restored["rooms"]] == original_rooms
+    assert restored["virtual_dividers"] == []
+    assert client.get(f"/api/v1/jobs/{job_id}").json()["data"]["layout_rev"] == 0
+
+    again = client.post(f"/api/v1/jobs/{job_id}/reset")
+    assert again.status_code == 200, again.text
+    assert again.json()["data"]["meta"]["layout_rev"] == 0
+
+    missing = client.post("/api/v1/jobs/missing-job/reset")
+    assert missing.status_code == 404
+

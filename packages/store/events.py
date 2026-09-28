@@ -9,7 +9,7 @@ from typing import Any
 from psycopg.rows import dict_row
 from psycopg.types.json import Json
 
-from packages.common.errors import LayoutRevisionConflictError
+from packages.common.errors import JobNotFoundError, LayoutRevisionConflictError
 from packages.common.hashing import stable_hash
 from packages.contracts.dto.feedback import FeedbackEventDto
 from packages.contracts.enums import FeedbackAction
@@ -83,6 +83,19 @@ class EventStore:
 
     def list_dtos(self, job_id: str) -> list[FeedbackEventDto]:
         return [row_to_dto(row) for row in self.list_for_job(job_id)]
+
+    def reset_job(self, job_id: str) -> None:
+        """Drop all feedback for a job and return it to layout_rev 0."""
+        with self._conn.cursor() as cur:
+            cur.execute("SELECT id FROM jobs WHERE id = %s FOR UPDATE", (job_id,))
+            locked = cur.fetchone()
+            if locked is None:
+                self._conn.rollback()
+                raise JobNotFoundError(job_id)
+            cur.execute("DELETE FROM layout_revisions WHERE job_id = %s", (job_id,))
+            cur.execute("DELETE FROM feedback_events WHERE job_id = %s", (job_id,))
+            cur.execute("UPDATE jobs SET layout_rev = 0 WHERE id = %s", (job_id,))
+        self._conn.commit()
 
     def append_batch(
         self,

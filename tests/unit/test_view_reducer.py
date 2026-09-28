@@ -186,3 +186,76 @@ def test_draw_wall_adds_virtual_divider_only():
     assert len(derived.rooms) == 1
     assert len(derived.virtual_dividers) == 1
     assert derived.physical_rooms[0].id == "r1"
+
+
+def _poly_room(room_id: str, coords: list[tuple[float, float]]) -> RoomDto:
+    from shapely.geometry import Polygon
+
+    poly = Polygon(coords)
+    minx, miny, maxx, maxy = poly.bounds
+    c = poly.centroid
+    return RoomDto(
+        id=room_id,
+        boundary=[PointDto(x=float(x), y=float(y)) for x, y in coords],
+        area_m2=float(poly.area),
+        area_net_m2=float(poly.area),
+        area_gross_m2=float(poly.area),
+        center=PointDto(x=float(c.x), y=float(c.y)),
+        perimeter_m=float(poly.length),
+        bbox=BBoxDto(min_x=float(minx), min_y=float(miny), max_x=float(maxx), max_y=float(maxy)),
+        confidence=0.9,
+        kind="indoor",
+        physical_room_id=room_id,
+    )
+
+
+def test_split_bottom_corridor_does_not_cut_top_corridor():
+    # C-shape opening right: bottom gap y=0-2, island y=2-6, top gap y=6-8.
+    wrapping = _poly_room(
+        "wrap",
+        [(0, 0), (5, 0), (5, 2), (2, 2), (2, 6), (5, 6), (5, 8), (0, 8)],
+    )
+    derived = reduce_view(
+        _layout(wrapping),
+        [
+            _event(
+                FeedbackAction.SPLIT,
+                target_ids=[],
+                payload={"start_x": 3.5, "start_y": 0.2, "end_x": 3.5, "end_y": 1.8},
+            )
+        ],
+    )
+    assert len(derived.virtual_dividers) == 1
+    divider = derived.virtual_dividers[0]
+    ys = sorted([divider.start.y, divider.end.y])
+    assert divider.start.x == divider.end.x or abs(divider.start.x - 3.5) < 1e-6
+    assert ys[0] <= 0.05
+    assert ys[1] <= 2.05
+    assert ys[1] < 5.0
+    top_still_open = any(room.bbox.max_y >= 7.9 and room.bbox.min_x <= 0.1 for room in derived.rooms)
+    assert top_still_open
+    assert abs(sum(room.area_m2 for room in derived.rooms) - wrapping.area_m2) < 0.05
+
+
+def test_split_stops_at_island_room():
+    outer = _room("outer", 0, 0, 5, 8)
+    island = _room("island", 2, 3, 4, 5)
+    derived = reduce_view(
+        _layout(outer, island),
+        [
+            _event(
+                FeedbackAction.SPLIT,
+                target_ids=["outer"],
+                payload={"start_x": 3.0, "start_y": 0.2, "end_x": 3.0, "end_y": 2.5},
+            )
+        ],
+    )
+    assert any(room.id == "island" for room in derived.rooms)
+    assert len(derived.virtual_dividers) == 1
+    divider = derived.virtual_dividers[0]
+    ys = sorted([divider.start.y, divider.end.y])
+    assert ys[0] <= 0.05
+    assert abs(ys[1] - 3.0) < 0.05
+    assert not any(
+        min(d.start.y, d.end.y) >= 4.5 and max(d.start.y, d.end.y) >= 7.5 for d in derived.virtual_dividers
+    )

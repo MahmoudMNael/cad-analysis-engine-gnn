@@ -149,6 +149,17 @@ def submit_feedback_batch(
     return written
 
 
+def reset_layout(
+    job_id: str,
+    *,
+    jobs: JobRepository,
+    events: EventStore,
+) -> None:
+    _require_succeeded(job_id, jobs)
+    events.reset_job(job_id)
+    log.info("layout_reset", extra={"job_id": job_id, "stage": "feedback", "layout_rev": 0})
+
+
 def undo_dividers(
     job_id: str,
     *,
