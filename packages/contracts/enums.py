@@ -8,6 +8,7 @@ class JobStatus(StrEnum):
     RUNNING = "running"
     SUCCEEDED = "succeeded"
     FAILED = "failed"
+    CANCELLED = "cancelled"
 
 
 class UnitSource(StrEnum):
@@ -90,6 +91,7 @@ class ErrorCode(StrEnum):
     JOB_NOT_FOUND = "JOB_NOT_FOUND"
     JOB_NOT_READY = "JOB_NOT_READY"
     JOB_FAILED = "JOB_FAILED"
+    JOB_NOT_CANCELLABLE = "JOB_NOT_CANCELLABLE"
     LAYOUT_NOT_FOUND = "LAYOUT_NOT_FOUND"
     LAYOUT_REVISION_CONFLICT = "LAYOUT_REVISION_CONFLICT"
     INVALID_FEEDBACK_ACTION = "INVALID_FEEDBACK_ACTION"

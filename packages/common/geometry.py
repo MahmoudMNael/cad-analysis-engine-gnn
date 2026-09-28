@@ -137,6 +137,22 @@ def finite_geometry(geom: BaseGeometry) -> bool:
     return True
 
 
+def chord_curvature(geom: BaseGeometry) -> float:
+    """How much a linestring bows relative to its endpoint chord. 0 is straight."""
+    if geom.is_empty or geom.geom_type not in {"LineString", "LinearRing"}:
+        return 0.0
+    coords = list(geom.coords)
+    if len(coords) < 2:
+        return 0.0
+    length = float(geom.length)
+    if length <= 1e-9:
+        return 0.0
+    x0, y0 = coords[0][0], coords[0][1]
+    x1, y1 = coords[-1][0], coords[-1][1]
+    chord = math.hypot(x1 - x0, y1 - y0)
+    return abs(length - chord) / length
+
+
 def orientation_sincos(geom: BaseGeometry) -> tuple[float, float]:
     if geom.geom_type in {"LineString", "LinearRing"} and len(geom.coords) >= 2:
         x0, y0 = geom.coords[0][0], geom.coords[0][1]

@@ -44,7 +44,7 @@ KIND_BY_DXFTYPE = {
 def sniff_format(filename: str, header: bytes) -> CadFormat:
     lower = filename.lower()
     if lower.endswith(".dwg") or header.startswith(b"AC10"):
-        raise UnsupportedFormatError("DWG is not supported; upload DXF")
+        return CadFormat.DWG
     if lower.endswith(".dxf"):
         return CadFormat.DXF
     text = header.decode("latin-1", errors="ignore")
@@ -227,7 +227,9 @@ def build_document(
     settings: Settings,
     explicit_unit: str | None = None,
 ) -> tuple[Document, list[WarningDto]]:
-    fmt = sniff_format(path.name, path.read_bytes()[:256])
+    with path.open("rb") as handle:
+        header = handle.read(256)
+    fmt = sniff_format(path.name, header)
     if fmt is not CadFormat.DXF:
         raise UnsupportedFormatError("unsupported CAD format")
     doc, warnings = load_dxf(path)

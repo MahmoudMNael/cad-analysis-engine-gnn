@@ -10,6 +10,7 @@ from packages.common.configuration import Settings, get_settings
 from packages.common.hashing import engine_sha_from_sources
 from packages.store.db.repositories.jobs import JobRepository
 from packages.store.db.repositories.models import ModelRegistryRepository
+from packages.store.events import EventStore
 from packages.store.jobs import JobQueue
 from packages.store.object_store import ObjectStore
 from packages.store.snapshots import SnapshotStore
@@ -53,3 +54,7 @@ def snapshot_store(
     objects: ObjectStore = Depends(get_object_store),
 ) -> SnapshotStore:
     return SnapshotStore(objects, jobs)
+
+
+def event_store(conn=Depends(db_conn)) -> EventStore:
+    return EventStore(conn)

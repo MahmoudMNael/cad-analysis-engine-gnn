@@ -50,6 +50,34 @@ class Settings(BaseSettings):
     layout_schema: str = "layout.v1"
     allowed_source_url_hosts: str = ""
     engine_sha_override: str = ""
+    frontend_trainer_base_url: str = ""
+    smtp_host: str = ""
+    smtp_port: int = 587
+    smtp_user: str = ""
+    smtp_password: str = ""
+    smtp_from: str = ""
+    smtp_use_tls: bool = True
+
+    oda_converter_path: str = ""
+    oda_dxf_version: str = "R2018"
+
+    # Runtime-only. Not part of job configuration_hash.
+    entity_classify_workers: int = 4
+
+    # GNN-C training / promotion. Not part of job configuration_hash.
+    face_train_min_labeled_jobs: int = 50
+    face_train_min_classes: int = 2
+    face_train_ratio: float = 0.7
+    face_val_ratio: float = 0.15
+    face_train_seed: int = 0
+    face_gnn_hidden_dim: int = 64
+    face_gnn_layers: int = 2
+    face_gnn_dropout: float = 0.1
+    face_gnn_epochs: int = 40
+    face_gnn_lr: float = 1e-3
+    face_promote_target_metric: str = "macro_f1"
+    face_promote_min_macro_f1: float = 0.0
+    face_promote_tolerance: float = 0.02
 
     def allowed_hosts(self) -> tuple[str, ...]:
         raw = self.allowed_source_url_hosts.strip()

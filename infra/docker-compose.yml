@@ -6,7 +6,7 @@ services:
       POSTGRES_PASSWORD: cad
       POSTGRES_DB: cad
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - cad_pg_data:/var/lib/postgresql/data
     healthcheck:
@@ -34,11 +34,19 @@ services:
       CAD_DATABASE_URL: postgresql://cad:cad@postgres:5432/cad
       CAD_REDIS_URL: redis://redis:6379/0
       CAD_OBJECT_STORE_DIR: /object-storage
+      CAD_ODA_CONVERTER_PATH: /usr/local/bin/oda-headless.sh
+      CAD_FRONTEND_TRAINER_BASE_URL: ${CAD_FRONTEND_TRAINER_BASE_URL:-}
+      CAD_SMTP_HOST: ${CAD_SMTP_HOST:-}
+      CAD_SMTP_PORT: ${CAD_SMTP_PORT:-587}
+      CAD_SMTP_USER: ${CAD_SMTP_USER:-}
+      CAD_SMTP_PASSWORD: ${CAD_SMTP_PASSWORD:-}
+      CAD_SMTP_FROM: ${CAD_SMTP_FROM:-}
+      CAD_SMTP_USE_TLS: ${CAD_SMTP_USE_TLS:-true}
     volumes:
       - ..:/app
       - ../object-storage:/object-storage
     ports:
-      - "8000:8000"
+      - "8002:8000"
     depends_on:
       postgres:
         condition: service_healthy
@@ -54,6 +62,14 @@ services:
       CAD_DATABASE_URL: postgresql://cad:cad@postgres:5432/cad
       CAD_REDIS_URL: redis://redis:6379/0
       CAD_OBJECT_STORE_DIR: /object-storage
+      CAD_ODA_CONVERTER_PATH: /usr/local/bin/oda-headless.sh
+      CAD_FRONTEND_TRAINER_BASE_URL: ${CAD_FRONTEND_TRAINER_BASE_URL:-}
+      CAD_SMTP_HOST: ${CAD_SMTP_HOST:-}
+      CAD_SMTP_PORT: ${CAD_SMTP_PORT:-587}
+      CAD_SMTP_USER: ${CAD_SMTP_USER:-}
+      CAD_SMTP_PASSWORD: ${CAD_SMTP_PASSWORD:-}
+      CAD_SMTP_FROM: ${CAD_SMTP_FROM:-}
+      CAD_SMTP_USE_TLS: ${CAD_SMTP_USE_TLS:-true}
     volumes:
       - ..:/app
       - ../object-storage:/object-storage
@@ -72,6 +88,7 @@ services:
       CAD_DATABASE_URL: postgresql://cad:cad@postgres:5432/cad
       CAD_REDIS_URL: redis://redis:6379/0
       CAD_OBJECT_STORE_DIR: /object-storage
+      CAD_ODA_CONVERTER_PATH: /usr/local/bin/oda-headless.sh
       CAD_RUN_INTEGRATION: "1"
     volumes:
       - ..:/app

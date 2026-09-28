@@ -37,6 +37,17 @@
             "title": "Consent Training",
             "type": "boolean"
           },
+          "email": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Email"
+          },
           "file": {
             "contentMediaType": "application/octet-stream",
             "title": "File",
@@ -58,6 +69,26 @@
           "file"
         ],
         "title": "Body_create_job_api_v1_jobs_post",
+        "type": "object"
+      },
+      "Body_import_face_model_api_v1_admin_models_post": {
+        "properties": {
+          "checkpoint": {
+            "contentMediaType": "application/octet-stream",
+            "title": "Checkpoint",
+            "type": "string"
+          },
+          "metrics": {
+            "contentMediaType": "application/octet-stream",
+            "title": "Metrics",
+            "type": "string"
+          }
+        },
+        "required": [
+          "checkpoint",
+          "metrics"
+        ],
+        "title": "Body_import_face_model_api_v1_admin_models_post",
         "type": "object"
       },
       "ComponentHealthDto": {
@@ -120,6 +151,42 @@
           "url"
         ],
         "title": "CreateJobFromUrlRequest",
+        "type": "object"
+      },
+      "DatasetEligibilityDto": {
+        "additionalProperties": false,
+        "properties": {
+          "labeled_jobs": {
+            "title": "Labeled Jobs",
+            "type": "integer"
+          },
+          "n_classes": {
+            "title": "N Classes",
+            "type": "integer"
+          },
+          "n_labeled_faces": {
+            "title": "N Labeled Faces",
+            "type": "integer"
+          },
+          "ok": {
+            "title": "Ok",
+            "type": "boolean"
+          },
+          "reasons": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Reasons",
+            "type": "array"
+          }
+        },
+        "required": [
+          "ok",
+          "labeled_jobs",
+          "n_classes",
+          "n_labeled_faces"
+        ],
+        "title": "DatasetEligibilityDto",
         "type": "object"
       },
       "DimensionsDto": {
@@ -191,6 +258,336 @@
         "title": "DividerRequest",
         "type": "object"
       },
+      "FaceDatasetDto": {
+        "additionalProperties": false,
+        "properties": {
+          "classes": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Classes",
+            "type": "array"
+          },
+          "edge_feature_keys": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Edge Feature Keys",
+            "type": "array"
+          },
+          "edge_feature_schema_version": {
+            "title": "Edge Feature Schema Version",
+            "type": "string"
+          },
+          "eligibility": {
+            "$ref": "#/components/schemas/DatasetEligibilityDto"
+          },
+          "engine_sha": {
+            "title": "Engine Sha",
+            "type": "string"
+          },
+          "feature_schema_version": {
+            "title": "Feature Schema Version",
+            "type": "string"
+          },
+          "graphs": {
+            "items": {
+              "$ref": "#/components/schemas/FaceGraphDto"
+            },
+            "title": "Graphs",
+            "type": "array"
+          },
+          "hyperparams": {
+            "$ref": "#/components/schemas/FaceTrainHyperparamsDto"
+          },
+          "node_feature_keys": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Node Feature Keys",
+            "type": "array"
+          }
+        },
+        "required": [
+          "feature_schema_version",
+          "edge_feature_schema_version",
+          "node_feature_keys",
+          "edge_feature_keys",
+          "classes",
+          "engine_sha",
+          "hyperparams",
+          "eligibility"
+        ],
+        "title": "FaceDatasetDto",
+        "type": "object"
+      },
+      "FaceDatasetResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/FaceDatasetDto"
+          },
+          "message": {
+            "default": "",
+            "title": "Message",
+            "type": "string"
+          },
+          "success": {
+            "default": true,
+            "title": "Success",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "data"
+        ],
+        "title": "FaceDatasetResponse",
+        "type": "object"
+      },
+      "FaceDto": {
+        "additionalProperties": false,
+        "properties": {
+          "accepted_as_room": {
+            "title": "Accepted As Room",
+            "type": "boolean"
+          },
+          "adjacent_unbounded": {
+            "default": false,
+            "title": "Adjacent Unbounded",
+            "type": "boolean"
+          },
+          "area_m2": {
+            "title": "Area M2",
+            "type": "number"
+          },
+          "boundary": {
+            "items": {
+              "$ref": "#/components/schemas/PointDto"
+            },
+            "title": "Boundary",
+            "type": "array"
+          },
+          "confidence": {
+            "title": "Confidence",
+            "type": "number"
+          },
+          "decision_source": {
+            "title": "Decision Source",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "predicted_class": {
+            "title": "Predicted Class",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "boundary",
+          "area_m2",
+          "predicted_class",
+          "confidence",
+          "decision_source",
+          "accepted_as_room"
+        ],
+        "title": "FaceDto",
+        "type": "object"
+      },
+      "FaceGraphDto": {
+        "additionalProperties": false,
+        "properties": {
+          "building_id": {
+            "title": "Building Id",
+            "type": "string"
+          },
+          "edge_attr": {
+            "items": {
+              "items": {
+                "type": "number"
+              },
+              "type": "array"
+            },
+            "title": "Edge Attr",
+            "type": "array"
+          },
+          "edge_index": {
+            "items": {
+              "items": {
+                "type": "integer"
+              },
+              "type": "array"
+            },
+            "title": "Edge Index",
+            "type": "array"
+          },
+          "face_ids": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Face Ids",
+            "type": "array"
+          },
+          "job_id": {
+            "title": "Job Id",
+            "type": "string"
+          },
+          "labels": {
+            "items": {
+              "type": "integer"
+            },
+            "title": "Labels",
+            "type": "array"
+          },
+          "node_features": {
+            "items": {
+              "items": {
+                "type": "number"
+              },
+              "type": "array"
+            },
+            "title": "Node Features",
+            "type": "array"
+          },
+          "weights": {
+            "items": {
+              "type": "number"
+            },
+            "title": "Weights",
+            "type": "array"
+          }
+        },
+        "required": [
+          "job_id",
+          "building_id",
+          "face_ids",
+          "node_features",
+          "edge_index",
+          "edge_attr",
+          "labels",
+          "weights"
+        ],
+        "title": "FaceGraphDto",
+        "type": "object"
+      },
+      "FaceListDto": {
+        "additionalProperties": false,
+        "properties": {
+          "faces": {
+            "items": {
+              "$ref": "#/components/schemas/FaceDto"
+            },
+            "title": "Faces",
+            "type": "array"
+          }
+        },
+        "title": "FaceListDto",
+        "type": "object"
+      },
+      "FaceListResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/FaceListDto"
+          },
+          "message": {
+            "default": "",
+            "title": "Message",
+            "type": "string"
+          },
+          "success": {
+            "default": true,
+            "title": "Success",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "data"
+        ],
+        "title": "FaceListResponse",
+        "type": "object"
+      },
+      "FaceTrainHyperparamsDto": {
+        "additionalProperties": false,
+        "properties": {
+          "cavity_area_m2": {
+            "title": "Cavity Area M2",
+            "type": "number"
+          },
+          "face_gnn_dropout": {
+            "title": "Face Gnn Dropout",
+            "type": "number"
+          },
+          "face_gnn_epochs": {
+            "title": "Face Gnn Epochs",
+            "type": "integer"
+          },
+          "face_gnn_hidden_dim": {
+            "title": "Face Gnn Hidden Dim",
+            "type": "integer"
+          },
+          "face_gnn_layers": {
+            "title": "Face Gnn Layers",
+            "type": "integer"
+          },
+          "face_gnn_lr": {
+            "title": "Face Gnn Lr",
+            "type": "number"
+          },
+          "face_threshold": {
+            "title": "Face Threshold",
+            "type": "number"
+          },
+          "face_train_min_classes": {
+            "title": "Face Train Min Classes",
+            "type": "integer"
+          },
+          "face_train_min_labeled_jobs": {
+            "title": "Face Train Min Labeled Jobs",
+            "type": "integer"
+          },
+          "face_train_ratio": {
+            "title": "Face Train Ratio",
+            "type": "number"
+          },
+          "face_train_seed": {
+            "title": "Face Train Seed",
+            "type": "integer"
+          },
+          "face_val_ratio": {
+            "title": "Face Val Ratio",
+            "type": "number"
+          },
+          "outdoor_area_m2": {
+            "title": "Outdoor Area M2",
+            "type": "number"
+          },
+          "shaft_area_m2": {
+            "title": "Shaft Area M2",
+            "type": "number"
+          }
+        },
+        "required": [
+          "face_train_min_labeled_jobs",
+          "face_train_min_classes",
+          "face_train_ratio",
+          "face_val_ratio",
+          "face_train_seed",
+          "face_gnn_hidden_dim",
+          "face_gnn_layers",
+          "face_gnn_dropout",
+          "face_gnn_epochs",
+          "face_gnn_lr",
+          "cavity_area_m2",
+          "shaft_area_m2",
+          "outdoor_area_m2",
+          "face_threshold"
+        ],
+        "title": "FaceTrainHyperparamsDto",
+        "type": "object"
+      },
       "FeedbackAction": {
         "enum": [
           "accept",
@@ -206,6 +603,114 @@
         ],
         "title": "FeedbackAction",
         "type": "string"
+      },
+      "FeedbackEventDto": {
+        "additionalProperties": false,
+        "properties": {
+          "action": {
+            "$ref": "#/components/schemas/FeedbackAction"
+          },
+          "actor": {
+            "title": "Actor",
+            "type": "string"
+          },
+          "event_id": {
+            "title": "Event Id",
+            "type": "string"
+          },
+          "job_id": {
+            "title": "Job Id",
+            "type": "string"
+          },
+          "layout_rev": {
+            "title": "Layout Rev",
+            "type": "integer"
+          },
+          "payload": {
+            "additionalProperties": true,
+            "title": "Payload",
+            "type": "object"
+          },
+          "retracted_by_event_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Retracted By Event Id"
+          },
+          "sequence": {
+            "title": "Sequence",
+            "type": "integer"
+          },
+          "target_ids": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Target Ids",
+            "type": "array"
+          },
+          "ts": {
+            "title": "Ts",
+            "type": "string"
+          }
+        },
+        "required": [
+          "event_id",
+          "job_id",
+          "sequence",
+          "ts",
+          "actor",
+          "action",
+          "layout_rev"
+        ],
+        "title": "FeedbackEventDto",
+        "type": "object"
+      },
+      "FeedbackEventListDto": {
+        "additionalProperties": false,
+        "properties": {
+          "events": {
+            "items": {
+              "$ref": "#/components/schemas/FeedbackEventDto"
+            },
+            "title": "Events",
+            "type": "array"
+          },
+          "layout_rev": {
+            "default": 0,
+            "title": "Layout Rev",
+            "type": "integer"
+          }
+        },
+        "title": "FeedbackEventListDto",
+        "type": "object"
+      },
+      "FeedbackEventListResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/FeedbackEventListDto"
+          },
+          "message": {
+            "default": "",
+            "title": "Message",
+            "type": "string"
+          },
+          "success": {
+            "default": true,
+            "title": "Success",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "data"
+        ],
+        "title": "FeedbackEventListResponse",
+        "type": "object"
       },
       "FeedbackEventRequest": {
         "additionalProperties": false,
@@ -246,6 +751,29 @@
           "action"
         ],
         "title": "FeedbackEventRequest",
+        "type": "object"
+      },
+      "FeedbackEventResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/FeedbackEventDto"
+          },
+          "message": {
+            "default": "",
+            "title": "Message",
+            "type": "string"
+          },
+          "success": {
+            "default": true,
+            "title": "Success",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "data"
+        ],
+        "title": "FeedbackEventResponse",
         "type": "object"
       },
       "HTTPValidationError": {
@@ -552,7 +1080,8 @@
           "queued",
           "running",
           "succeeded",
-          "failed"
+          "failed",
+          "cancelled"
         ],
         "title": "JobStatus",
         "type": "string"
@@ -780,6 +1309,29 @@
           "position"
         ],
         "title": "LightDto",
+        "type": "object"
+      },
+      "ModelImportResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/ModelInfoDto"
+          },
+          "message": {
+            "default": "",
+            "title": "Message",
+            "type": "string"
+          },
+          "success": {
+            "default": true,
+            "title": "Success",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "data"
+        ],
+        "title": "ModelImportResponse",
         "type": "object"
       },
       "ModelInfoDto": {
@@ -1424,6 +1976,89 @@
   },
   "openapi": "3.1.0",
   "paths": {
+    "/api/v1/admin/datasets/face": {
+      "get": {
+        "operationId": "export_face_graphs_api_v1_admin_datasets_face_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FaceDatasetResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Export Face Graphs",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/api/v1/admin/datasets/face/kernel.py": {
+      "get": {
+        "operationId": "face_train_kernel_source_api_v1_admin_datasets_face_kernel_py_get",
+        "responses": {
+          "200": {
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Face Train Kernel Source",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/api/v1/admin/models": {
+      "post": {
+        "operationId": "import_face_model_api_v1_admin_models_post",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_import_face_model_api_v1_admin_models_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ModelImportResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Import Face Model",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
     "/api/v1/admin/train": {
       "post": {
         "operationId": "train_api_v1_admin_train_post",
@@ -1626,7 +2261,9 @@
           "200": {
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/FeedbackEventResponse"
+                }
               }
             },
             "description": "Successful Response"
@@ -1648,6 +2285,48 @@
         ]
       }
     },
+    "/api/v1/jobs/{job_id}/cancel": {
+      "post": {
+        "operationId": "cancel_job_api_v1_jobs__job_id__cancel_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "job_id",
+            "required": true,
+            "schema": {
+              "title": "Job Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Cancel Job",
+        "tags": [
+          "jobs"
+        ]
+      }
+    },
     "/api/v1/jobs/{job_id}/dividers": {
       "delete": {
         "operationId": "delete_dividers_api_v1_jobs__job_id__dividers_delete",
@@ -1666,7 +2345,9 @@
           "200": {
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/FeedbackEventListResponse"
+                }
               }
             },
             "description": "Successful Response"
@@ -1714,7 +2395,9 @@
           "200": {
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/FeedbackEventResponse"
+                }
               }
             },
             "description": "Successful Response"
@@ -1764,7 +2447,9 @@
           "200": {
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/FeedbackEventResponse"
+                }
               }
             },
             "description": "Successful Response"
@@ -1804,7 +2489,9 @@
           "200": {
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/FaceListResponse"
+                }
               }
             },
             "description": "Successful Response"
@@ -1863,6 +2550,48 @@
           }
         },
         "summary": "Get Layout",
+        "tags": [
+          "jobs"
+        ]
+      }
+    },
+    "/api/v1/jobs/{job_id}/reset": {
+      "post": {
+        "operationId": "reset_job_api_v1_jobs__job_id__reset_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "job_id",
+            "required": true,
+            "schema": {
+              "title": "Job Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LayoutResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Reset Job",
         "tags": [
           "jobs"
         ]

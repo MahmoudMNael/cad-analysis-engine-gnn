@@ -197,6 +197,41 @@ def test_crossing_lines(tmp_path: Path):
     assert len(result.layout.physical_rooms) >= 3
 
 
+def test_door_swing_does_not_cut_into_room(tmp_path: Path):
+    def build(msp):
+        add_lines(
+            msp,
+            [
+                ((0, 0), (5000, 0)),
+                ((5000, 0), (5000, 4000)),
+                ((5000, 4000), (0, 4000)),
+                ((0, 4000), (0, 2500)),
+                ((0, 1600), (0, 0)),
+            ],
+        )
+        msp.add_arc(center=(0, 1600), radius=900, start_angle=0, end_angle=90, dxfattribs={"layer": "DOOR"})
+
+    result = run_dxf(write_simple_dxf(tmp_path / "swing.dxf", build))
+    assert len(result.layout.physical_rooms) == 1
+    assert abs(result.layout.physical_rooms[0].area_m2 - 20.0) < 0.4
+    assert result.layout.doors
+    for door in result.layout.doors:
+        assert max(door.start.x, door.end.x) <= 0.15
+        assert min(door.start.y, door.end.y) >= 1.5
+        assert max(door.start.y, door.end.y) <= 2.6
+
+
+def test_interior_table_does_not_split_room(tmp_path: Path):
+    def build(msp):
+        add_rect(msp, (0, 0), 5000, 4000)
+        add_rect(msp, (1500, 1500), 800, 600, layer="0")
+
+    result = run_dxf(write_simple_dxf(tmp_path / "table.dxf", build))
+    assert len(result.layout.physical_rooms) == 1
+    assert abs(result.layout.physical_rooms[0].area_m2 - 20.0) < 0.3
+    assert result.layout.objects or result.layout.unassigned_objects
+
+
 def test_invalid_self_intersecting_does_not_crash(tmp_path: Path):
     def build(msp):
         add_lines(

@@ -10,6 +10,7 @@ from shapely.strtree import STRtree
 from packages.common.configuration import Settings
 from packages.common.geometry import canonicalize_unordered_pair, orientation_sincos
 from packages.common.hashing import stable_hash
+from packages.common.spatial_index import SpatialIndex, expand_bounds
 from packages.graphkit.models import GapCandidate, PlanGraph
 
 
@@ -55,9 +56,13 @@ def generate_gap_candidates(graph: PlanGraph, settings: Settings) -> list[GapCan
     out: list[GapCandidate] = []
     seen: set[tuple[str, str]] = set()
     d_max = settings.gap_max_distance_m
-    for i, a_id in enumerate(dangling):
+    node_index = SpatialIndex.build([(nid, Point(nodes[nid].point)) for nid in dangling])
+    for a_id in dangling:
         a = nodes[a_id]
-        for b_id in dangling[i + 1 :]:
+        nearby = node_index.query(expand_bounds(Point(a.point), d_max))
+        for b_id in nearby:
+            if b_id <= a_id:
+                continue
             key = (a_id, b_id) if a_id < b_id else (b_id, a_id)
             if key in seen:
                 continue
@@ -69,7 +74,7 @@ def generate_gap_candidates(graph: PlanGraph, settings: Settings) -> list[GapCan
             already = key in existing or (key[1], key[0]) in existing
             if already:
                 continue
-            geom = LineString([a.point, b.point])
+            geom = LineString(canonicalize_unordered_pair(a.point, b.point, settings.coord_precision))
             crosses = False
             if tree is not None:
                 hits = tree.query(geom, predicate="intersects")

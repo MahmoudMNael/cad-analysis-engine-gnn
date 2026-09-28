@@ -43,3 +43,31 @@ def test_dequeue_connection_error_is_queue_error():
         raise AssertionError("expected QueueError")
     except QueueError as exc:
         assert "failed to dequeue" in str(exc)
+
+
+class _RemoveClient:
+    def __init__(self):
+        self.calls = []
+
+    def lrem(self, key: str, count: int, value: str):
+        self.calls.append((key, count, value))
+        return 1
+
+
+class _BrokenRemoveClient:
+    def lrem(self, key: str, count: int, value: str):
+        raise redis.ConnectionError("redis down")
+
+
+def test_remove_lrems_job_id():
+    client = _RemoveClient()
+    _queue_with_client(client).remove("job-1")
+    assert client.calls == [("cad:jobs", 0, "job-1")]
+
+
+def test_remove_connection_error_is_queue_error():
+    try:
+        _queue_with_client(_BrokenRemoveClient()).remove("job-1")
+        raise AssertionError("expected QueueError")
+    except QueueError as exc:
+        assert "failed to remove" in str(exc)
