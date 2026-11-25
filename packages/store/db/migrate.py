@@ -17,6 +17,8 @@ MIGRATIONS_DIR = Path(__file__).resolve().parent / "migrations"
 def apply_migrations(conn: Connection) -> list[str]:
     applied: list[str] = []
     with conn.cursor() as cur:
+        # Serialize concurrent API/worker startup migrations on DDL.
+        cur.execute("SELECT pg_advisory_xact_lock(847291034)")
         cur.execute(
             """
             CREATE TABLE IF NOT EXISTS schema_migrations (

@@ -25,16 +25,17 @@ services:
       timeout: 3s
       retries: 20
 
-  api:
+  app:
     build:
       context: ..
       dockerfile: Dockerfile
-    command: uvicorn apps.api.main:app --host 0.0.0.0 --port 8000 --reload --reload-dir /app/apps --reload-dir /app/packages
     environment:
+      PORT: 8000
       CAD_DATABASE_URL: postgresql://cad:cad@postgres:5432/cad
       CAD_REDIS_URL: redis://redis:6379/0
       CAD_OBJECT_STORE_DIR: /object-storage
       CAD_ODA_CONVERTER_PATH: /usr/local/bin/oda-headless.sh
+      CAD_WORKER_COUNT: ${CAD_WORKER_COUNT:-2}
       CAD_FRONTEND_TRAINER_BASE_URL: ${CAD_FRONTEND_TRAINER_BASE_URL:-}
       CAD_SMTP_HOST: ${CAD_SMTP_HOST:-}
       CAD_SMTP_PORT: ${CAD_SMTP_PORT:-587}
@@ -47,32 +48,12 @@ services:
       - ../object-storage:/object-storage
     ports:
       - "8002:8000"
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-
-  worker:
-    build:
-      context: ..
-      dockerfile: Dockerfile
-    command: watchfiles --filter python "python -m apps.worker.main" /app/apps /app/packages
-    environment:
-      CAD_DATABASE_URL: postgresql://cad:cad@postgres:5432/cad
-      CAD_REDIS_URL: redis://redis:6379/0
-      CAD_OBJECT_STORE_DIR: /object-storage
-      CAD_ODA_CONVERTER_PATH: /usr/local/bin/oda-headless.sh
-      CAD_FRONTEND_TRAINER_BASE_URL: ${CAD_FRONTEND_TRAINER_BASE_URL:-}
-      CAD_SMTP_HOST: ${CAD_SMTP_HOST:-}
-      CAD_SMTP_PORT: ${CAD_SMTP_PORT:-587}
-      CAD_SMTP_USER: ${CAD_SMTP_USER:-}
-      CAD_SMTP_PASSWORD: ${CAD_SMTP_PASSWORD:-}
-      CAD_SMTP_FROM: ${CAD_SMTP_FROM:-}
-      CAD_SMTP_USE_TLS: ${CAD_SMTP_USE_TLS:-true}
-    volumes:
-      - ..:/app
-      - ../object-storage:/object-storage
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/v1/health')"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 10s
     depends_on:
       postgres:
         condition: service_healthy
@@ -83,6 +64,7 @@ services:
     build:
       context: ..
       dockerfile: Dockerfile
+      target: dev
     command: pytest -q
     environment:
       CAD_DATABASE_URL: postgresql://cad:cad@postgres:5432/cad

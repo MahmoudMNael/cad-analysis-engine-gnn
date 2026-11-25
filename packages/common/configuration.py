@@ -63,6 +63,7 @@ class Settings(BaseSettings):
 
     # Runtime-only. Not part of job configuration_hash.
     entity_classify_workers: int = 4
+    worker_count: int = 2
 
     # GNN-C training / promotion. Not part of job configuration_hash.
     face_train_min_labeled_jobs: int = 50

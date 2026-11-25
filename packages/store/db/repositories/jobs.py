@@ -93,9 +93,20 @@ class JobRepository:
             row = cur.fetchone()
         return _row(row) if row else None
 
-    def list_queued(self) -> list[JobRecord]:
+    def list_queued(self, min_age_seconds: int = 0) -> list[JobRecord]:
         with self._conn.cursor(row_factory=dict_row) as cur:
-            cur.execute("SELECT * FROM jobs WHERE status = 'queued' ORDER BY created_at")
+            if min_age_seconds > 0:
+                cur.execute(
+                    """
+                    SELECT * FROM jobs
+                    WHERE status = 'queued'
+                      AND created_at < NOW() - (%s * INTERVAL '1 second')
+                    ORDER BY created_at
+                    """,
+                    (min_age_seconds,),
+                )
+            else:
+                cur.execute("SELECT * FROM jobs WHERE status = 'queued' ORDER BY created_at")
             rows = cur.fetchall()
         return [_row(r) for r in rows]
 

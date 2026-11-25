@@ -18,12 +18,21 @@ from apps.worker.jobs.analyze_job import process_job
 log = get_logger("worker")
 
 
-def _reclaim(conn, queue: JobQueue, timeout_seconds: int) -> None:
+def _reclaim(
+    conn,
+    queue: JobQueue,
+    timeout_seconds: int,
+    *,
+    min_queued_age_seconds: int = 30,
+) -> None:
     jobs = JobRepository(conn)
-    for stale in jobs.reset_stale_running(timeout_seconds):
+    stale_ids = list(jobs.reset_stale_running(timeout_seconds))
+    for stale in stale_ids:
         queue.enqueue(stale)
-    for queued in jobs.list_queued():
-        queue.enqueue(queued.id)
+    stale_set = set(stale_ids)
+    for queued in jobs.list_queued(min_age_seconds=min_queued_age_seconds):
+        if queued.id not in stale_set:
+            queue.enqueue(queued.id)
 
 
 def main() -> None:
@@ -39,8 +48,9 @@ def main() -> None:
         now = time.time()
         if now - last_reclaim > 15:
             try:
-                with psycopg.connect(settings.database_url) as conn:
-                    _reclaim(conn, queue, settings.job_timeout_seconds)
+                if queue.acquire_reclaim_lock(worker_id, ttl_seconds=15):
+                    with psycopg.connect(settings.database_url) as conn:
+                        _reclaim(conn, queue, settings.job_timeout_seconds)
                 last_reclaim = now
             except Exception:
                 log.exception(
