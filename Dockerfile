@@ -57,7 +57,7 @@ COPY infra/oda/oda-headless.sh /usr/local/bin/oda-headless.sh
 RUN chmod +x /usr/local/bin/oda-headless.sh \
     && mkdir -p /object-storage
 
-RUN --mount=type=cache,target=/root/.cache/pip \
+RUN --mount=type=cache,id=pip,target=/root/.cache/pip \
     pip install --default-timeout=1000 --retries 20 --index-url https://download.pytorch.org/whl/cpu torch
 
 COPY pyproject.toml /app/pyproject.toml
@@ -65,13 +65,13 @@ COPY apps /app/apps
 COPY packages /app/packages
 COPY main.py /app/main.py
 
-RUN --mount=type=cache,target=/root/.cache/pip \
+RUN --mount=type=cache,id=pip,target=/root/.cache/pip \
     pip install --default-timeout=1000 --retries 20 -e .
 
 
 FROM base AS dev
 
-RUN --mount=type=cache,target=/root/.cache/pip \
+RUN --mount=type=cache,id=pip,target=/root/.cache/pip \
     pip install --default-timeout=1000 --retries 20 -e ".[dev]"
 
 COPY tests /app/tests
