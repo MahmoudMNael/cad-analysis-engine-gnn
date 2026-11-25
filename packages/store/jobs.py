@@ -10,6 +10,13 @@ from packages.common.errors import QueueError
 # Must exceed BLPOP wait so an empty queue is a nil reply, not a client socket timeout.
 _SOCKET_TIMEOUT_SECONDS = 30.0
 _CONNECT_TIMEOUT_SECONDS = 5.0
+_ENQUEUE_UNIQUE_LUA = """
+if redis.call('LPOS', KEYS[1], ARGV[1]) == false then
+    redis.call('RPUSH', KEYS[1], ARGV[1])
+    return 1
+end
+return 0
+"""
 
 
 class JobQueue:
@@ -23,11 +30,19 @@ class JobQueue:
             retry_on_timeout=False,
         )
 
-    def enqueue(self, job_id: str) -> None:
+    def enqueue(self, job_id: str) -> bool:
+        """Push job_id to the queue if not already queued."""
         try:
-            self._client.rpush(self._key, job_id)
+            return bool(self._client.eval(_ENQUEUE_UNIQUE_LUA, 1, self._key, job_id))
         except redis.RedisError as exc:
             raise QueueError(f"failed to enqueue job: {exc}") from exc
+
+    def acquire_reclaim_lock(self, owner: str, ttl_seconds: int = 15) -> bool:
+        """Acquire short-lived distributed lock so only one worker runs reclaim per tick."""
+        try:
+            return bool(self._client.set(f"{self._key}:reclaim_lock", owner, nx=True, ex=ttl_seconds))
+        except redis.RedisError as exc:
+            raise QueueError(f"failed to acquire reclaim lock: {exc}") from exc
 
     def remove(self, job_id: str) -> None:
         try:
